@@ -7,6 +7,9 @@ app = Flask(__name__)
 def hello():
     return "Hello World!"
 
+@app.route('/add-question')
+def addquestion():
+    
 
 if __name__ == "__main__":
     app.run()

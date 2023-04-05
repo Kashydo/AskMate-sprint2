@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Add question</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h1>Ask question</h1>
+    <form method="POST" action="addquestion">
+      <fieldset>
+        <label for="title"
+          >Title: <input id="title" name="title" type="text" required />
+        </label>
+      </fieldset>
+      <fieldset>
+        <label for="message">
+          <textarea
+            id="message"
+            name="message"
+            rows="5"
+            cols="100"
+            placeholder="Write your question here"
+            required
+          ></textarea>
+        </label>
+        <p>
+          <label for="image"
+            >Upload image: <input if="image" type="file" name="file" />
+          </label>
+        </p>
+      </fieldset>
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+</html>
