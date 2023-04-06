@@ -19,3 +19,8 @@ def addtofile(data, file):
     with open(file, "a", newline="") as f:
         write = csv.writer(f)
         write.writerow(data)
+
+
+def readfile(file):
+    with open(file, "r") as f:
+        return list(csv.reader(f, delimiter=","))
