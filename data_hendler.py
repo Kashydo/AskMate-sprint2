@@ -1,7 +1,6 @@
 import csv
 import os
 
-QUESTIONS_FILE = "sample_data\question.csv"
 
 DATA_FILE_PATH = (
     os.getenv("DATA_FILE_PATH") if "DATA_FILE_PATH" in os.environ else "data.csv"
@@ -16,6 +15,7 @@ QUESTION_HEADER = [
 ]
 
 
-def addquestion(question):
-    with open(QUESTIONS_FILE, "a") as f:
-        f.write(question)
+def addtofile(data, file):
+    with open(file, "a", newline="") as f:
+        write = csv.writer(f)
+        write.writerow(data)

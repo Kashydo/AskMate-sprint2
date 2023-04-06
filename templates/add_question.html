@@ -6,7 +6,7 @@
   </head>
   <body>
     <h1>Ask question</h1>
-    <form method="POST" action="addquestion">
+    <form method="POST" action="/add-question">
       <fieldset>
         <label for="title"
           >Title: <input id="title" name="title" type="text" required />
@@ -25,7 +25,7 @@
         </label>
         <p>
           <label for="image"
-            >Upload image: <input if="image" type="file" name="file" />
+            >Upload image: <input if="image" type="file" name="file" value="" />
           </label>
         </p>
       </fieldset>
