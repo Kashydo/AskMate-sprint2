@@ -18,13 +18,19 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
-    return "Hello World!"
+@app.route('/')
+@app.route("/list")
+def question_list():
+    with open(QUESTIONS_FILE, 'r', newline='') as csvfile:
+        questions = list(csv.DictReader(csvfile))
+    return render_template('question_list.html', user_questions=questions)
 
-
-@app.route("/question")
-def show_question():
-    return "This is question"
+@app.route("/question/<question_id>")
+def question_detail(question_id):
+    with open(QUESTIONS_FILE, 'r', newline='') as csvfile:
+        questions = list(csv.DictReader(csvfile))
+    question = next((q for q in questions if q['id'] == question_id), None)
+    return render_template('question_detail.html', question=question)
 
 
 @app.route("/add-question", methods=["GET", "POST"])
