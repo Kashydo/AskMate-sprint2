@@ -6,10 +6,37 @@
   <body>
     <header><a href="/">Return to main page</a></header>
     {% if question is not none %}
-    <h1>{{ question['title'] }}</h1>
-    <p>{{ question['message'] }}</p>
-    {% else %}
-    <p>There is no question.</p>
-    {% endif %}
+    <main>
+      <h1>{{ question['title'] }}</h1>
+      <p>{{ question['message'] }}</p>
+      <br />
+      <h1>Answers</h1>
+      {% else %}
+      <p>There is no question.</p>
+      {% endif %} {% if answers is not none %}
+      <table>
+        <tr>
+          <th>Id</th>
+          <th>submission_time</th>
+          <th>vote_number</th>
+          <th>question_id</th>
+          <th>message</th>
+          <th>image</th>
+        </tr>
+        {%for answer in answers %}
+        <tr>
+          <td>{{answer['id']}}</td>
+          <td>{{answer['submission_time']}}</td>
+          <td>{{answer['vote_number']}}</td>
+          <td>{{answer['question_id']}}</td>
+          <td>{{answer['message']}}</td>
+          <td>{{answer['image']}}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p>There are no answers yet</p>
+      {% endif %}
+    </main>
   </body>
 </html>

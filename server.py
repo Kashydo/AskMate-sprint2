@@ -8,10 +8,26 @@ QUESTION_HEADER = [
     "id",
     "submission_time",
     "view_number",
-    "vote_number" "title",
+    "vote_number",
+    "title",
     "message",
     "image",
 ]
+ANSWER_HEADER = [
+    "id",
+    "submission_time",
+    "vote_number",
+    "question_id",
+    "message",
+    "image",
+]
+ID = 0
+SUBMISSION_TIME = 1
+VIEW_QUESTION, VOTE_ANSWER = 2, 2
+VOTE_QUESTION, QUESTION_ID = 3, 3
+TITLE, ANSWER = 4, 4
+QUESTION, IMAGE_ANSWER = 5, 5
+IMAGE_QUESTION = 6
 
 QUESTIONS_FILE = "sample_data\question.csv"
 ANSWER_FILE = "sample_data\Answer.csv"
@@ -32,7 +48,12 @@ def question_detail(question_id):
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
     question = next((q for q in questions if q["id"] == question_id), None)
-    return render_template("question_detail.html", question=question)
+    answers_to_question = data_hendler.read_specific_data(
+        ANSWER_FILE, "question_id", question_id
+    )
+    return render_template(
+        "question_detail.html", question=question, answers=answers_to_question
+    )
 
 
 @app.route("/add-question", methods=["GET", "POST"])
@@ -55,7 +76,7 @@ def question():
 def answer(question_id):
     if request.method == "POST":
         id = util.generate_id(ANSWER_FILE)
-        submission_time = round(time.time())
+        submission_time = round(datetime.datetime.now().timestamp())
         vote_number = 0
         message = str(request.form.get("message"))
         image = request.form.get("image")
