@@ -29,7 +29,11 @@
           <td>{{user_question['submission_time']}}</td>
           <td>{{user_question['vote_number']}}</td>
           <td>{{user_question['message']}}</td>
-          <td>{{user_question['image']}}</td>
+          <td>
+          {% if user_question['image'] %}
+          <img src="{{user_question['image']}}" width="200" />
+          {% endif %}
+          </td>
         </tr>
         {%endfor%}
       </table>

@@ -1,5 +1,6 @@
 import datetime
 import csv
+import os.path
 from config import *
 
 
@@ -13,3 +14,10 @@ def generate_id(file):
 ct = datetime.datetime.now()
 ts = round(ct.timestamp())
 print("timestamp:-", ts)
+
+
+def is_allowed_file_extension(filename):
+    return filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_file_extension(filename):
+    return filename.rsplit('.', 1)[1].lower()

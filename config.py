@@ -26,5 +26,5 @@ IMAGE_QUESTION = 6
 QUESTIONS_FILE = "sample_data\question.csv"
 ANSWER_FILE = "sample_data\Answer.csv"
 
-IMAGES_FOLDER = "images"
+IMAGES_FOLDER = "static/images/"
 ALLOWED_EXTENSIONS = ("jpg", "jpeg", "png", "gif", "bmp")

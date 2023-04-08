@@ -16,7 +16,7 @@
       </ol>
     </div>
     {% endif %}
-    <form method="POST" action="/add-question">
+    <form method="POST" action="/add-question" enctype="multipart/form-data">
       <fieldset>
         <label for="title"
           >Title: <input id="title" name="title" type="text" value="{{form["title"]}}" required />
@@ -35,7 +35,7 @@
         </label>
         <p>
           <label for="image"
-            >Upload image: <input if="image" type="file" name="file" value="" />
+            >Upload image: <input id="image" type="file" name="image" value="" />
           </label>
         </p>
       </fieldset>

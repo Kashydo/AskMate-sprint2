@@ -43,10 +43,17 @@ def question():
         vote = 0
         title = request.form.get("title")
         message = str(request.form.get("message"))
-        image = request.form.get("image")
-        question = [question_id, submision_time, views, vote, title, message, image]
+        imagename = ""
         if len(title) == 0: errors_msg.append(errors["empty_title"])
         if len(message) == 0: errors_msg.append(errors["empty_message"])
+        if "image" in request.files:
+            image = request.files["image"]
+            if image.filename != "":
+                if not util.is_allowed_file_extension(image.filename): errors_msg.append(errors["wrong_file_extension"])
+                else:
+                    imagename = IMAGES_FOLDER + str(question_id) + "." + util.get_file_extension(image.filename)
+                    image.save(imagename)
+        question = [question_id, submision_time, views, vote, title, message, imagename]
         if len(errors_msg) == 0:
             messages_msg = messages["added_question"]
             data_hendler.addtofile(question, QUESTIONS_FILE)
