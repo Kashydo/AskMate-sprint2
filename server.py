@@ -82,6 +82,7 @@ def question():
 
 @app.route("/question/<int:question_id>/new-answer", methods=["GET", "POST"])
 def answer(question_id):
+    errors_msg = []
     if request.method == "POST":
         id = util.generate_id(ANSWER_FILE)
         submission_time = round(datetime.datetime.now().timestamp())
@@ -89,9 +90,12 @@ def answer(question_id):
         message = str(request.form.get("message"))
         image = request.form.get("image")
         answer = [id, submission_time, vote_number, question_id, message, image]
-        data_hendler.addtofile(answer, ANSWER_FILE)
-        return redirect(url_for("question_detail", question_id=question_id))
-    return render_template("add_answer.html", question_id=question_id)
+        if len(message) == 0: errors_msg.append(errors["empty_message"])
+        if len(errors_msg) == 0:
+            messages_msg = messages["added_answer"]
+            data_hendler.addtofile(answer, ANSWER_FILE)
+            return redirect(url_for("question_detail", question_id=question_id, messages_msg = messages_msg))
+    return render_template("add_answer.html", question_id=question_id, form = request.form, errors_msg = errors_msg)
 
 
 if __name__ == "__main__":

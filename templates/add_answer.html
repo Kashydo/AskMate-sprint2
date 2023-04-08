@@ -6,6 +6,16 @@
   </head>
   <body>
     <h1>Your Answer</h1>
+    {% if errors_msg %}
+    <div>
+      <h3>Errors</h3>
+      <ol>
+        {% for error in errors_msg %}
+        <li>{{error}}</li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
     <form method="POST" action="">
       <fieldset>
         <label for="message">
@@ -16,7 +26,7 @@
             cols="100"
             placeholder="Write your answer here"
             required
-          ></textarea>
+          >{{form["message"]}}</textarea>
         </label>
         <p>
           <label for="image"
