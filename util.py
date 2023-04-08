@@ -1,5 +1,5 @@
 ID = 0
-import time
+import datetime
 import csv
 
 
@@ -10,4 +10,6 @@ def generate_id(file):
         return int(last_id) + 1
 
 
-print(time.thread_time_ns())
+ct = datetime.datetime.now()
+ts = round(ct.timestamp())
+print("timestamp:-", ts)

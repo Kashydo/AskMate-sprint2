@@ -1,28 +1,39 @@
-<!doctype html>
-<title>Ask Mate</title>
-<h1>Ask Mate</h1>
-<table>
-    <tr>
-        <th>Id</th>
-        <th>Question title</th>
-        <th>submission_time</th>
-        <th>vote_number</th>
-        <th>message</th>
-        <th>imag</th>
-        
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ask Mate</title>
+  </head>
+  <body>
+    <header>
+      <a href="/add-question">Ask question</a>
+    </header>
+    <main>
+      <h1>Ask Mate</h1>
+      <table>
+        <tr>
+          <th>Id</th>
+          <th>Question title</th>
+          <th>submission_time</th>
+          <th>vote_number</th>
+          <th>message</th>
+          <th>imag</th>
+        </tr>
+        {%for user_question in user_questions %}
+        <tr>
+          <td>
+            <a href="/question/{{user_question['id']}}"
+              >{{user_question['id']}}</a
+            >
+          </td>
+          <td>{{user_question['title']}}</td>
+          <td>{{user_question['submission_time']}}</td>
+          <td>{{user_question['vote_number']}}</td>
+          <td>{{user_question['message']}}</td>
+          <td>{{user_question['imagine']}}</td>
+        </tr>
 
-    </tr>
-    {%for user_question in user_questions %}
-    <tr>
-        <td><a href="http://localhost:8000/question/{{user_question['id']}}">{{user_question['id']}}</a></td>
-        <td>{{user_question['title']}}</td>
-        <td>{{user_question['submission_time']}}</td>
-        <td>{{user_question['vote_number']}}</td>
-        <td>{{user_question['message']}}</td>
-        <td>{{user_question['imagine']}}</td>
-
-    </tr>
-    
-    {%endfor%}
-
-</table>
+        {%endfor%}
+      </table>
+    </main>
+  </body>
+</html>
