@@ -6,6 +6,16 @@
   </head>
   <body>
     <h1>Ask question</h1>
+    {% if errors_msg %}
+    <div>
+      <h3>Errors</h3>
+      <ol>
+        {% for error in errors_msg %}
+        <li>{{error}}</li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
     <form method="POST" action="/add-question">
       <fieldset>
         <label for="title"

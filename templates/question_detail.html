@@ -8,6 +8,11 @@ a<!DOCTYPE html>
       <a href="/">Return to main page</a>
       <a href="/question/{{question['id']}}/new-answer">Add answer</a>
     </header>
+    {% if messages_msg %}
+    <div>
+    {{messages_msg}}
+    </div>
+    {% endif %}
     {% if question is not none %}
     <main>
       <h1>{{ question['title'] }}</h1>

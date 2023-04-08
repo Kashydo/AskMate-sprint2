@@ -3,6 +3,8 @@ import util
 import datetime
 import data_hendler
 import csv
+from errors import *
+from messages import *
 
 QUESTION_HEADER = [
     "id",
@@ -44,7 +46,8 @@ def question_list():
 
 
 @app.route("/question/<question_id>")
-def question_detail(question_id):
+@app.route("/question/<question_id>/<string:messages_msg>")
+def question_detail(question_id, messages_msg = None):
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
     question = next((q for q in questions if q["id"] == question_id), None)
@@ -52,12 +55,13 @@ def question_detail(question_id):
         ANSWER_FILE, "question_id", question_id
     )
     return render_template(
-        "question_detail.html", question=question, answers=answers_to_question
+        "question_detail.html", question=question, answers=answers_to_question, messages_msg = messages_msg
     )
 
 
 @app.route("/add-question", methods=["GET", "POST"])
 def question():
+    errors_msg = []
     if request.method == "POST":
         question_id = util.generate_id(QUESTIONS_FILE)
         submision_time = round(datetime.datetime.now().timestamp())
@@ -67,9 +71,13 @@ def question():
         message = str(request.form.get("message"))
         image = request.form.get("image")
         question = [question_id, submision_time, views, vote, title, message, image]
-        data_hendler.addtofile(question, QUESTIONS_FILE)
-        return redirect(url_for("question_detail", question_id=question_id))
-    return render_template("add_question.html")
+        if len(title) == 0: errors_msg.append(errors["empty_title"])
+        if len(message) == 0: errors_msg.append(errors["empty_message"])
+        if len(errors_msg) == 0:
+            messages_msg = messages["added_question"]
+            data_hendler.addtofile(question, QUESTIONS_FILE)
+            return redirect(url_for("question_detail", question_id=question_id, messages_msg = messages_msg))
+    return render_template("add_question.html", errors_msg = errors_msg)
 
 
 @app.route("/question/<int:question_id>/new-answer", methods=["GET", "POST"])
