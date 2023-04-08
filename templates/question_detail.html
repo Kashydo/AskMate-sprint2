@@ -1,10 +1,13 @@
-<!DOCTYPE html>
+a<!DOCTYPE html>
 <html>
   <head>
     <title>Question Detail</title>
   </head>
   <body>
-    <header><a href="/">Return to main page</a></header>
+    <header>
+      <a href="/">Return to main page</a>
+      <a href="/question/{{question['id']}}/new-answer">Add answer</a>
+    </header>
     {% if question is not none %}
     <main>
       <h1>{{ question['title'] }}</h1>

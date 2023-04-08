@@ -82,7 +82,7 @@ def answer(question_id):
         image = request.form.get("image")
         answer = [id, submission_time, vote_number, question_id, message, image]
         data_hendler.addtofile(answer, ANSWER_FILE)
-        return redirect("/")
+        return redirect(url_for("question_detail", question_id=question_id))
     return render_template("add_answer.html", question_id=question_id)
 
 
