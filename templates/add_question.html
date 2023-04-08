@@ -19,7 +19,7 @@
     <form method="POST" action="/add-question">
       <fieldset>
         <label for="title"
-          >Title: <input id="title" name="title" type="text" required />
+          >Title: <input id="title" name="title" type="text" value="{{form["title"]}}" required />
         </label>
       </fieldset>
       <fieldset>
@@ -31,7 +31,7 @@
             cols="100"
             placeholder="Write your question here"
             required
-          ></textarea>
+          >{{form["message"]}}</textarea>
         </label>
         <p>
           <label for="image"

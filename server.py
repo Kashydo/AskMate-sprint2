@@ -77,7 +77,7 @@ def question():
             messages_msg = messages["added_question"]
             data_hendler.addtofile(question, QUESTIONS_FILE)
             return redirect(url_for("question_detail", question_id=question_id, messages_msg = messages_msg))
-    return render_template("add_question.html", errors_msg = errors_msg)
+    return render_template("add_question.html", form = request.form, errors_msg = errors_msg)
 
 
 @app.route("/question/<int:question_id>/new-answer", methods=["GET", "POST"])
