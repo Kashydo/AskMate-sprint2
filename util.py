@@ -1,6 +1,6 @@
-ID = 0
 import datetime
 import csv
+from config import *
 
 
 def generate_id(file):
