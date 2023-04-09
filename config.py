@@ -6,6 +6,7 @@ QUESTION_HEADER = [
     "title",
     "message",
     "image",
+    "user_id"
 ]
 ANSWER_HEADER = [
     "id",
@@ -14,6 +15,7 @@ ANSWER_HEADER = [
     "question_id",
     "message",
     "image",
+    "user_id"
 ]
 ID = 0
 SUBMISSION_TIME = 1

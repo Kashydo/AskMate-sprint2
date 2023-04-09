@@ -72,7 +72,7 @@ def question():
                         + util.get_file_extension(image.filename)
                     )
                     image.save(imagename)
-        question = [question_id, submision_time, views, vote, title, message, imagename]
+        question = [question_id, submision_time, views, vote, title, message, imagename, user_id]
         if len(errors_msg) == 0:
             messages_msg = messages["added_question"]
             data_hendler.addtofile(question, QUESTIONS_FILE)
@@ -115,7 +115,7 @@ def answer(question_id):
                         + util.get_file_extension(image.filename)
                     )
                     image.save(imagename)
-        answer = [id, submission_time, vote_number, question_id, message, imagename]
+        answer = [id, submission_time, vote_number, question_id, message, imagename, user_id]
         if len(errors_msg) == 0:
             messages_msg = messages["added_answer"]
             data_hendler.addtofile(answer, ANSWER_FILE)
