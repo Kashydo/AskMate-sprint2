@@ -16,12 +16,18 @@ app = Flask(__name__)
 def question_list():
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
+    order_by = request.args.get("order_by")
+    if order_by != None:
+        questions = sorted(
+            questions,
+            key=lambda i: int(i[order_by]) if i[order_by].isnumeric else i[order_by],
+        )
     return render_template("question_list.html", user_questions=questions)
 
 
 @app.route("/question/<question_id>")
 @app.route("/question/<question_id>/<string:messages_msg>")
-def question_detail(question_id, messages_msg = None):
+def question_detail(question_id, messages_msg=None):
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
     question = next((q for q in questions if q["id"] == question_id), None)
@@ -29,7 +35,10 @@ def question_detail(question_id, messages_msg = None):
         ANSWER_FILE, "question_id", question_id
     )
     return render_template(
-        "question_detail.html", question=question, answers=answers_to_question, messages_msg = messages_msg
+        "question_detail.html",
+        question=question,
+        answers=answers_to_question,
+        messages_msg=messages_msg,
     )
 
 
@@ -44,21 +53,37 @@ def question():
         title = request.form.get("title")
         message = str(request.form.get("message"))
         imagename = ""
-        if len(title) == 0: errors_msg.append(errors["empty_title"])
-        if len(message) == 0: errors_msg.append(errors["empty_message"])
+        if len(title) == 0:
+            errors_msg.append(errors["empty_title"])
+        if len(message) == 0:
+            errors_msg.append(errors["empty_message"])
         if "image" in request.files:
             image = request.files["image"]
             if image.filename != "":
-                if not util.is_allowed_file_extension(image.filename): errors_msg.append(errors["wrong_file_extension"])
+                if not util.is_allowed_file_extension(image.filename):
+                    errors_msg.append(errors["wrong_file_extension"])
                 else:
-                    imagename = IMAGES_FOLDER + str(question_id) + "." + util.get_file_extension(image.filename)
+                    imagename = (
+                        IMAGES_FOLDER
+                        + str(question_id)
+                        + "."
+                        + util.get_file_extension(image.filename)
+                    )
                     image.save(imagename)
         question = [question_id, submision_time, views, vote, title, message, imagename]
         if len(errors_msg) == 0:
             messages_msg = messages["added_question"]
             data_hendler.addtofile(question, QUESTIONS_FILE)
-            return redirect(url_for("question_detail", question_id=question_id, messages_msg = messages_msg))
-    return render_template("add_question.html", form = request.form, errors_msg = errors_msg)
+            return redirect(
+                url_for(
+                    "question_detail",
+                    question_id=question_id,
+                    messages_msg=messages_msg,
+                )
+            )
+    return render_template(
+        "add_question.html", form=request.form, errors_msg=errors_msg
+    )
 
 
 @app.route("/question/<int:question_id>/new-answer", methods=["GET", "POST"])
@@ -71,12 +96,24 @@ def answer(question_id):
         message = str(request.form.get("message"))
         image = request.form.get("image")
         answer = [id, submission_time, vote_number, question_id, message, image]
-        if len(message) == 0: errors_msg.append(errors["empty_message"])
+        if len(message) == 0:
+            errors_msg.append(errors["empty_message"])
         if len(errors_msg) == 0:
             messages_msg = messages["added_answer"]
             data_hendler.addtofile(answer, ANSWER_FILE)
-            return redirect(url_for("question_detail", question_id=question_id, messages_msg = messages_msg))
-    return render_template("add_answer.html", question_id=question_id, form = request.form, errors_msg = errors_msg)
+            return redirect(
+                url_for(
+                    "question_detail",
+                    question_id=question_id,
+                    messages_msg=messages_msg,
+                )
+            )
+    return render_template(
+        "add_answer.html",
+        question_id=question_id,
+        form=request.form,
+        errors_msg=errors_msg,
+    )
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@
           <th>Id</th>
           <th>Question title</th>
           <th>submission_time</th>
-          <th>vote_number</th>
+          <th><a href="/list?order_by=vote_number">vote_number</a></th>
           <th>message</th>
           <th>imag</th>
         </tr>
@@ -30,9 +30,9 @@
           <td>{{user_question['vote_number']}}</td>
           <td>{{user_question['message']}}</td>
           <td>
-          {% if user_question['image'] %}
-          <img src="{{user_question['image']}}" width="200" />
-          {% endif %}
+            {% if user_question['image'] %}
+            <img src="{{user_question['image']}}" width="200" />
+            {% endif %}
           </td>
         </tr>
         {%endfor%}
