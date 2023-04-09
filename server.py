@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, make_response
 import util
 import datetime
 import data_hendler
@@ -14,6 +14,7 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/list")
 def question_list():
+    user_id = util.get_user_id(request)
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
     order_by = request.args.get("order_by")
@@ -22,28 +23,29 @@ def question_list():
             questions,
             key=lambda i: int(i[order_by]) if i[order_by].isnumeric else i[order_by],
         )
-    return render_template("question_list.html", user_questions=questions)
+    response = make_response(render_template('question_list.html', user_questions=questions, user_id = user_id))
+    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    return response
 
 
 @app.route("/question/<question_id>")
 @app.route("/question/<question_id>/<string:messages_msg>")
 def question_detail(question_id, messages_msg=None):
+    user_id = util.get_user_id(request)
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
     question = next((q for q in questions if q["id"] == question_id), None)
     answers_to_question = data_hendler.read_specific_data(
         ANSWER_FILE, "question_id", question_id
     )
-    return render_template(
-        "question_detail.html",
-        question=question,
-        answers=answers_to_question,
-        messages_msg=messages_msg,
-    )
+    response = make_response(render_template('question_detail.html', question=question, answers=answers_to_question, messages_msg=messages_msg))
+    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    return response
 
 
 @app.route("/add-question", methods=["GET", "POST"])
 def question():
+    user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
         question_id = util.generate_id(QUESTIONS_FILE)
@@ -81,13 +83,14 @@ def question():
                     messages_msg=messages_msg,
                 )
             )
-    return render_template(
-        "add_question.html", form=request.form, errors_msg=errors_msg
-    )
+    response = make_response(render_template('add_question.html', form=request.form, errors_msg=errors_msg))
+    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    return response
 
 
 @app.route("/question/<int:question_id>/new-answer", methods=["GET", "POST"])
 def answer(question_id):
+    user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
         id = util.generate_id(ANSWER_FILE)
@@ -108,12 +111,9 @@ def answer(question_id):
                     messages_msg=messages_msg,
                 )
             )
-    return render_template(
-        "add_answer.html",
-        question_id=question_id,
-        form=request.form,
-        errors_msg=errors_msg,
-    )
+    response = make_response(render_template('add_answer.html', question_id=question_id, form=request.form, errors_msg=errors_msg,))
+    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    return response
 
 
 if __name__ == "__main__":
