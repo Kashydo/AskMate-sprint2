@@ -16,7 +16,7 @@
       </ol>
     </div>
     {% endif %}
-    <form method="POST" action="">
+    <form method="POST" action="" enctype="multipart/form-data">
       <fieldset>
         <label for="message">
           <textarea
@@ -30,7 +30,7 @@
         </label>
         <p>
           <label for="image"
-            >Upload image: <input if="image" type="file" name="file" value="" />
+            >Upload image: <input id="image" type="file" name="image" value="" />
           </label>
         </p>
       </fieldset>

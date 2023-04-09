@@ -97,10 +97,25 @@ def answer(question_id):
         submission_time = round(datetime.datetime.now().timestamp())
         vote_number = 0
         message = str(request.form.get("message"))
-        image = request.form.get("image")
-        answer = [id, submission_time, vote_number, question_id, message, image]
+        imagename = ""
         if len(message) == 0:
             errors_msg.append(errors["empty_message"])
+        if "image" in request.files:
+            image = request.files["image"]
+            if image.filename != "":
+                if not util.is_allowed_file_extension(image.filename):
+                    errors_msg.append(errors["wrong_file_extension"])
+                else:
+                    imagename = (
+                        IMAGES_FOLDER
+                        + str(question_id)
+                        + "-"
+                        + str(id)
+                        + "."
+                        + util.get_file_extension(image.filename)
+                    )
+                    image.save(imagename)
+        answer = [id, submission_time, vote_number, question_id, message, imagename]
         if len(errors_msg) == 0:
             messages_msg = messages["added_answer"]
             data_hendler.addtofile(answer, ANSWER_FILE)

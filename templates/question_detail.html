@@ -38,7 +38,11 @@ a<!DOCTYPE html>
           <td>{{answer['vote_number']}}</td>
           <td>{{answer['question_id']}}</td>
           <td>{{answer['message']}}</td>
-          <td>{{answer['image']}}</td>
+          <td>
+            {% if answer['image'] %}
+            <img src="/{{answer['image']}}" width="200" />
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </table>
