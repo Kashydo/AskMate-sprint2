@@ -9,11 +9,8 @@ a<!DOCTYPE html>
       <a href="/question/{{question['id']}}/new-answer">Add answer</a>
     </header>
     {% if messages_msg %}
-    <div>
-    {{messages_msg}}
-    </div>
-    {% endif %}
-    {% if question is not none %}
+    <div>{{messages_msg}}</div>
+    {% endif %} {% if question is not none %}
     <main>
       <h1>{{ question['title'] }}</h1>
       <p>{{ question['message'] }}</p>
@@ -21,32 +18,19 @@ a<!DOCTYPE html>
       <h1>Answers</h1>
       {% else %}
       <p>There is no question.</p>
-      {% endif %} {% if answers is not none %}
-      <table>
-        <tr>
-          <th>Id</th>
-          <th>submission_time</th>
-          <th>vote_number</th>
-          <th>question_id</th>
-          <th>message</th>
-          <th>image</th>
-        </tr>
-        {%for answer in answers %}
-        <tr>
-          <td>{{answer['id']}}</td>
-          <td>{{answer['submission_time']}}</td>
-          <td>{{answer['vote_number']}}</td>
-          <td>{{answer['question_id']}}</td>
-          <td>{{answer['message']}}</td>
-          <td>
-            {% if answer['image'] %}
-            <img src="/{{answer['image']}}" width="200" />
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </table>
-      {% else %}
+      {% endif %} {% if answers is not none %} {%for answer in answers %}
+      <div>
+        <p>Votes: {{answer['vote_number']}} Answe ID: {{answer['id']}}</p>
+        <p>{{answer['message']}}</p>
+        {% if answer['image'] %}
+        <img src="/{{answer['image']}}" width="200" />
+        {% endif %}
+        <a
+          href="{{url_for('delete_answer', question_id = question.id, answer_id=answer.id )}}"
+          >Delete answer</a
+        >
+      </div>
+      {% endfor %} {% else %}
       <p>There are no answers yet</p>
       {% endif %}
     </main>

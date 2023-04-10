@@ -1,4 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, make_response
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    make_response,
+)
 import util
 import datetime
 import data_hendler
@@ -180,6 +187,22 @@ def answer(question_id):
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response
+
+
+@app.route("/question/<int:question_id>/delete/<int:answer_id>")
+def delete_answer(question_id, answer_id):
+    user_id = util.get_user_id(request)
+    with open(ANSWER_FILE, "r", newline="") as csvfile:
+        answers = list(csv.DictReader(csvfile))
+    answer = next((a for a in answers if a["id"] == str(answer_id)), None)
+    if user_id == answer["user_id"]:
+        messages_msg = messages["delete_answer"]
+        data_hendler.delete_data(ANSWER_FILE, answer_id, "id", ANSWER_HEADER)
+    else:
+        messages_msg = messages["cant_delete"]
+    return redirect(
+        url_for("question_detail", question_id=question_id, messages_msg=messages_msg)
+    )
 
 
 if __name__ == "__main__":
