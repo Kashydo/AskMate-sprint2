@@ -1,4 +1,4 @@
-a<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Question Detail</title>
@@ -7,6 +7,7 @@ a<!DOCTYPE html>
     <header>
       <a href="/">Return to main page</a>
       <a href="/question/{{question['id']}}/new-answer">Add answer</a>
+      <a href="/question/{{question['id']}}/delete">Delete question</a>
     </header>
     {% if messages_msg %}
     <div>{{messages_msg}}</div>
