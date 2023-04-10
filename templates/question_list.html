@@ -9,12 +9,43 @@
     </header>
     <main>
       <h1>Ask Mate</h1>
+      <fieldset>
+        <label for="dropdown"
+          >Sort
+          <select
+            id="dropdown"
+            name="dropdown"
+            onchange="if (this.value)window.location.href=this.value"
+          >
+            <option value="">(select one)</option>
+            <option value="/list?order_by=title&order_direction=asc">
+              by title ascending
+            </option>
+            <option value="/list?order_by=title&order_direction=desc">
+              by title descending
+            </option>
+            <option value="/list?order_by=submission_time&order_direction=asc">
+              by submision time ascending
+            </option>
+            <option value="/list?order_by=submission_time&order_direction=desc">
+              by submision time descending
+            </option>
+            <option value="/list?order_by=vote_number&order_direction=asc">
+              by votes ascending
+            </option>
+            <option value="/list?order_by=vote_number&order_direction=desc">
+              by votes descending
+            </option>
+          </select>
+        </label>
+      </fieldset>
+
       <table>
         <tr>
           <th>Id</th>
           <th>Question title</th>
           <th>submission_time</th>
-          <th><a href="/list?order_by=vote_number">vote_number</a></th>
+          <th>vote_number</th>
           <th>message</th>
           <th>imag</th>
         </tr>

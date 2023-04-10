@@ -18,13 +18,28 @@ def question_list():
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
     order_by = request.args.get("order_by")
+    order_direction = request.args.get("order_direction")
     if order_by != None:
-        questions = sorted(
-            questions,
-            key=lambda i: int(i[order_by]) if i[order_by].isnumeric else i[order_by],
-        )
-    response = make_response(render_template('question_list.html', user_questions=questions, user_id = user_id))
-    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+        if order_direction == "desc":
+            questions = sorted(
+                questions,
+                key=lambda i: int(i[order_by])
+                if i[order_by].isnumeric()
+                else i[order_by],
+                reverse=True,
+            )
+        else:
+            questions = sorted(
+                questions,
+                key=lambda i: int(i[order_by])
+                if i[order_by].isnumeric()
+                else i[order_by],
+            )
+    response = make_response(
+        render_template("question_list.html", user_questions=questions, user_id=user_id)
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
     return response
 
 
@@ -38,8 +53,16 @@ def question_detail(question_id, messages_msg=None):
     answers_to_question = data_hendler.read_specific_data(
         ANSWER_FILE, "question_id", question_id
     )
-    response = make_response(render_template('question_detail.html', question=question, answers=answers_to_question, messages_msg=messages_msg))
-    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    response = make_response(
+        render_template(
+            "question_detail.html",
+            question=question,
+            answers=answers_to_question,
+            messages_msg=messages_msg,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
     return response
 
 
@@ -72,7 +95,16 @@ def question():
                         + util.get_file_extension(image.filename)
                     )
                     image.save(imagename)
-        question = [question_id, submision_time, views, vote, title, message, imagename, user_id]
+        question = [
+            question_id,
+            submision_time,
+            views,
+            vote,
+            title,
+            message,
+            imagename,
+            user_id,
+        ]
         if len(errors_msg) == 0:
             messages_msg = messages["added_question"]
             data_hendler.addtofile(question, QUESTIONS_FILE)
@@ -83,8 +115,11 @@ def question():
                     messages_msg=messages_msg,
                 )
             )
-    response = make_response(render_template('add_question.html', form=request.form, errors_msg=errors_msg))
-    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    response = make_response(
+        render_template("add_question.html", form=request.form, errors_msg=errors_msg)
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
     return response
 
 
@@ -115,7 +150,15 @@ def answer(question_id):
                         + util.get_file_extension(image.filename)
                     )
                     image.save(imagename)
-        answer = [id, submission_time, vote_number, question_id, message, imagename, user_id]
+        answer = [
+            id,
+            submission_time,
+            vote_number,
+            question_id,
+            message,
+            imagename,
+            user_id,
+        ]
         if len(errors_msg) == 0:
             messages_msg = messages["added_answer"]
             data_hendler.addtofile(answer, ANSWER_FILE)
@@ -126,8 +169,16 @@ def answer(question_id):
                     messages_msg=messages_msg,
                 )
             )
-    response = make_response(render_template('add_answer.html', question_id=question_id, form=request.form, errors_msg=errors_msg,))
-    if not request.cookies.get('userID'): response.set_cookie('user_id', user_id)
+    response = make_response(
+        render_template(
+            "add_answer.html",
+            question_id=question_id,
+            form=request.form,
+            errors_msg=errors_msg,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
     return response
 
 
