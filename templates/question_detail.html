@@ -2,13 +2,35 @@
 <html>
   <head>
     <title>Question Detail</title>
+    <style>
+      .buttons-container {
+          display: flex; 
+          justify-content: space-between; 
+          max-width: 300px; 
+          margin: 0; 
+        }
+      .buttons-container form {
+          flex: 1;
+          margin-right: 10px; 
+          margin-bottom: 30 px;
+      }
+   </style>
   </head>
   <body>
-    <header>
-      <a href="/">Return to main page</a>
-      <a href="/question/{{question['id']}}/new-answer">Add answer</a>
-      <a href="/question/{{question['id']}}/delete">Delete question</a>
-    </header>
+    <div class="buttons-container">
+      <form method="GET" action="/">
+        <input type="submit" value="Return to main page">
+      </form>
+      <form method="GET" action="/question/{{question['id']}}/delete">
+        <input type="submit" value="Delete question">
+      </form>
+      <form method="GET" action="/question/{{question['id']}}/edit">
+          <input type="submit" value="Edit question">
+      </form>
+      <form method="GET"action="/question/{{question['id']}}/new-answer">
+          <input type="submit" value="Add answer">
+      </form>
+    </div>
     {% if messages_msg %}
     <div>{{messages_msg}}</div>
     {% endif %} {% if question is not none %}
@@ -29,10 +51,9 @@
         {% if answer['image'] %}
         <img src="/{{answer['image']}}" width="200" />
         {% endif %}
-        <a
-          href="{{url_for('delete_answer', question_id = question.id, answer_id=answer.id )}}"
-          >Delete answer</a
-        >
+        <form method="GET" action="/question/{{question['id']}}/delete/{{answer['id']}}">
+          <input type="submit" value="Delete answes">
+        </form>
       </div>
       {% endfor %} {% else %}
       <p>There are no answers yet</p>

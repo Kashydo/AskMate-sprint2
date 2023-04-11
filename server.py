@@ -234,6 +234,83 @@ def delete_question(question_id):
 def show_post_date(timestamp):
     return util.translate_timestamp(timestamp)
 
+@app.route("/question/<question_id>/edit", methods=["GET", "POST"])
+def question_edit(question_id):
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    if request.method == "POST":
+        with open(QUESTIONS_FILE, "r", newline="") as csvfile:
+            questions = list(csv.DictReader(csvfile))
+        question = next((q for q in questions if q["id"] == question_id), None)
+        if question:
+            title = request.form.get("title")
+            message = str(request.form.get("message"))
+            imagename = question["image"]
+            if len(title) == 0:
+                errors_msg.append(errors["empty_title"])
+            if len(message) == 0:
+                errors_msg.append(errors["empty_message"])
+            if "image" in request.files:
+                image = request.files["image"]
+                if image.filename != "":
+                    if not util.is_allowed_file_extension(image.filename):
+                        errors_msg.append(errors["wrong_file_extension"])
+                    else:
+                        imagename = (
+                            IMAGES_FOLDER
+                            + str(question_id)
+                            + "."
+                            + util.get_file_extension(image.filename)
+                        )
+                        image.save(imagename)
+
+            if len(errors_msg) == 0:
+                question["title"] = title
+                question["message"] = message
+                question["image"] = imagename
+
+                with open(QUESTIONS_FILE, "w", newline="") as csvfile:
+                    fieldnames = [
+                        "id",
+                        "submission_time",
+                        "view_number",
+                        "vote_number",
+                        "title",
+                        "message",
+                        "image",
+                        "user_id",
+                    ]
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(questions)
+
+                messages_msg = messages["edited_question"]
+                return redirect(
+                    url_for(
+                        "question_detail",
+                        question_id=question_id,
+                        messages_msg=messages_msg,
+                    )
+                )
+
+    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
+        questions = list(csv.DictReader(csvfile))
+    question = next((q for q in questions if q["id"] == question_id), None)
+    if question:
+        response = make_response(
+            render_template(
+                "question_edit.html",
+                question=question,
+                form=request.form,
+                errors_msg=errors_msg,
+            )
+        )
+        if not request.cookies.get("userID"):
+            response.set_cookie("user_id", user_id)
+        return response
+    else:
+        return redirect(url_for("question_list"))
+
 
 if __name__ == "__main__":
     app.run()
