@@ -21,7 +21,10 @@
       <p>There is no question.</p>
       {% endif %} {% if answers is not none %} {%for answer in answers %}
       <div>
-        <p>Votes: {{answer['vote_number']}} Answe ID: {{answer['id']}}</p>
+        <p>
+          Votes: {{answer['vote_number']}} Answe ID: {{answer['id']}} Date:
+          {{answer['submission_time'] | post_time}}
+        </p>
         <p>{{answer['message']}}</p>
         {% if answer['image'] %}
         <img src="/{{answer['image']}}" width="200" />

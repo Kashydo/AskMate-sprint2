@@ -3,6 +3,7 @@ import csv
 import os.path
 import random
 import string
+import tzlocal
 from config import *
 
 
@@ -63,3 +64,10 @@ def get_user_id(request):
     if not user_id:
         user_id = generate_user_id()
     return user_id
+
+
+def translate_timestamp(timestamp):
+    unix_timestamp = float(timestamp)
+    local_timezone = tzlocal.get_localzone()
+    local_time = datetime.datetime.fromtimestamp(unix_timestamp, local_timezone)
+    return local_time.strftime("%d/%m/%Y")

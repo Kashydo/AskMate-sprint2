@@ -204,6 +204,7 @@ def delete_answer(question_id, answer_id):
         url_for("question_detail", question_id=question_id, messages_msg=messages_msg)
     )
 
+
 @app.route("/question/<int:question_id>/delete")
 def delete_question(question_id):
     user_id = util.get_user_id(request)
@@ -219,12 +220,19 @@ def delete_question(question_id):
         for a in answers:
             if a["question_id"] == str(question_id):
                 messages_msg = messages["delete_answer"]
-                data_hendler.delete_data(ANSWER_FILE, question_id, "question_id", ANSWER_HEADER)
+                data_hendler.delete_data(
+                    ANSWER_FILE, question_id, "question_id", ANSWER_HEADER
+                )
     else:
         messages_msg = messages["cant_delete"]
     return redirect(
         url_for("question_list", question_id=question_id, messages_msg=messages_msg)
-        )
+    )
+
+
+@app.template_filter("post_time")
+def show_post_date(timestamp):
+    return util.translate_timestamp(timestamp)
 
 
 if __name__ == "__main__":
