@@ -34,31 +34,42 @@ def addtofile(data, file):
 
 def readfile(file):
     with open(file, "r") as f:
-        return list(csv.reader(f, delimiter=","))
+        return list(csv.DictReader(f))
 
 
-def read_specific_data(file, serched_data, data):
-    with open(file, "r") as f:
-        return_data = []
-        full_data = list(csv.DictReader(f))
-        for e in full_data:
-            if str(data) == e[serched_data]:
-                return_data.append(e)
-        if return_data == []:
-            return_data = None
-        return return_data
+def find_data_in_list(data, list, key):
+    return_list = []
+    for e in list:
+        if str(data) == e[key]:
+            return_list.append(e)
+    return return_list
 
 
-def delete_data(file, data_to_delete, data_category, headers):
-    with open(file, "r") as f:
-        old_file = list(csv.DictReader(f))
-        new_file = []
-        for e in old_file:
-            if str(data_to_delete) != e[data_category]:
-                new_file.append(e)
-    f.close()
+def read_specific_data(file, key, data):
+    full_data = readfile(file)
+    return_data = find_data_in_list(data, full_data, key)
+    if return_data == []:
+        return_data = None
+    return return_data
+
+
+def write_new_file(file, headers, list):
     with open(file, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(headers)
-        for dictionary in new_file:
+        for dictionary in list:
             writer.writerow(dictionary.values())
+
+
+def remove_data_from_list(list, data, key):
+    return_list = []
+    for e in list:
+        if str(data) != e[key]:
+            return_list.append(e)
+    return return_list
+
+
+def delete_data(file, data_to_delete, key, headers):
+    old_file = readfile(file)
+    new_file = remove_data_from_list(old_file, data_to_delete, key)
+    write_new_file(file, headers, new_file)

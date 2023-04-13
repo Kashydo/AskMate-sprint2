@@ -13,8 +13,16 @@ import csv
 from config import *
 from errors import *
 from messages import *
+from jinja2 import Environment
 
 app = Flask(__name__)
+
+
+def user_acess(id):
+    user_id = util.get_user_id(request)
+    if user_id == id:
+        return True
+    return False
 
 
 @app.route("/")
@@ -66,6 +74,7 @@ def question_detail(question_id, messages_msg=None):
             question=question,
             answers=answers_to_question,
             messages_msg=messages_msg,
+            user_acess=user_acess,
         )
     )
     if not request.cookies.get("userID"):
@@ -201,7 +210,11 @@ def delete_answer(question_id, answer_id):
     else:
         messages_msg = messages["cant_delete"]
     return redirect(
-        url_for("question_detail", question_id=question_id, messages_msg=messages_msg)
+        url_for(
+            "question_detail",
+            question_id=question_id,
+            messages_msg=messages_msg,
+        )
     )
 
 
@@ -233,6 +246,7 @@ def delete_question(question_id):
 @app.template_filter("post_time")
 def show_post_date(timestamp):
     return util.translate_timestamp(timestamp)
+
 
 @app.route("/question/<question_id>/edit", methods=["GET", "POST"])
 def question_edit(question_id):

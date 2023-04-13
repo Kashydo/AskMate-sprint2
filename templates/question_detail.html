@@ -4,31 +4,31 @@
     <title>Question Detail</title>
     <style>
       .buttons-container {
-          display: flex; 
-          justify-content: space-between; 
-          max-width: 300px; 
-          margin: 0; 
-        }
-      .buttons-container form {
-          flex: 1;
-          margin-right: 10px; 
-          margin-bottom: 30 px;
+        display: flex;
+        justify-content: space-between;
+        max-width: 300px;
+        margin: 0;
       }
-   </style>
+      .buttons-container form {
+        flex: 1;
+        margin-right: 10px;
+        margin-bottom: 30 px;
+      }
+    </style>
   </head>
   <body>
     <div class="buttons-container">
       <form method="GET" action="/">
-        <input type="submit" value="Return to main page">
+        <input type="submit" value="Return to main page" />
       </form>
       <form method="GET" action="/question/{{question['id']}}/delete">
-        <input type="submit" value="Delete question">
+        <input type="submit" value="Delete question" />
       </form>
       <form method="GET" action="/question/{{question['id']}}/edit">
-          <input type="submit" value="Edit question">
+        <input type="submit" value="Edit question" />
       </form>
-      <form method="GET"action="/question/{{question['id']}}/new-answer">
-          <input type="submit" value="Add answer">
+      <form method="GET" action="/question/{{question['id']}}/new-answer">
+        <input type="submit" value="Add answer" />
       </form>
     </div>
     {% if messages_msg %}
@@ -50,10 +50,14 @@
         <p>{{answer['message']}}</p>
         {% if answer['image'] %}
         <img src="/{{answer['image']}}" width="200" />
-        {% endif %}
-        <form method="GET" action="/question/{{question['id']}}/delete/{{answer['id']}}">
-          <input type="submit" value="Delete answes">
+        {% endif %} {% if user_acess(answer['user_id']) %}
+        <form
+          method="GET"
+          action="/question/{{question['id']}}/delete/{{answer['id']}}"
+        >
+          <input type="submit" value="Delete answer" />
         </form>
+        {% endif %}
       </div>
       {% endfor %} {% else %}
       <p>There are no answers yet</p>
