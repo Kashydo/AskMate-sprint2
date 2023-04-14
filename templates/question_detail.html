@@ -53,7 +53,8 @@
         <p>{{answer['message']}}</p>
         {% if answer['image'] %}
         <img src="/{{answer['image']}}" width="200" />
-        {% endif %} {% if user_acess(answer['user_id']) %}
+        {% endif %}
+        {% if answer['user_id'] == user_id %}
         <form
           method="GET"
           action="/question/{{question['id']}}/delete/{{answer['id']}}"
