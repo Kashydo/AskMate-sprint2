@@ -209,13 +209,18 @@ def delete_answer(question_id, answer_id):
         data_hendler.delete_data(ANSWER_FILE, answer_id, "id", ANSWER_HEADER)
     else:
         messages_msg = messages["cant_delete"]
-    return redirect(
-        url_for(
-            "question_detail",
-            question_id=question_id,
-            messages_msg=messages_msg,
+    response = make_response(
+        redirect(
+            url_for(
+                "question_detail",
+                question_id=question_id,
+                messages_msg=messages_msg,
+            )
         )
     )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
 
 
 @app.route("/question/<int:question_id>/delete")
@@ -238,9 +243,14 @@ def delete_question(question_id):
                 )
     else:
         messages_msg = messages["cant_delete"]
-    return redirect(
-        url_for("question_list", question_id=question_id, messages_msg=messages_msg)
+    response = make_response(
+        redirect(
+            url_for("question_list", question_id=question_id, messages_msg=messages_msg)
+        )
     )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
 
 
 @app.template_filter("post_time")

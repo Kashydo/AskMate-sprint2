@@ -21,12 +21,14 @@
       <form method="GET" action="/">
         <input type="submit" value="Return to main page" />
       </form>
+      {% if user_acess(question['user_id']) %}
       <form method="GET" action="/question/{{question['id']}}/delete">
         <input type="submit" value="Delete question" />
       </form>
       <form method="GET" action="/question/{{question['id']}}/edit">
         <input type="submit" value="Edit question" />
       </form>
+      {% endif %}
       <form method="GET" action="/question/{{question['id']}}/new-answer">
         <input type="submit" value="Add answer" />
       </form>
