@@ -42,7 +42,9 @@
           </select>
         </label>
       </fieldset>
-
+      {% if messages_msg %}
+      <div>{{messages_msg}}</div>
+      {% endif %}
       <table>
         <tr>
           <th>Id</th>
@@ -61,7 +63,14 @@
           </td>
           <td>{{user_question['title']}}</td>
           <td>{{user_question['submission_time'] | post_time}}</td>
-          <td>{{user_question['vote_number']}}</td>
+          <td>
+            {{user_question['vote_number']}}
+            {% if user_question['user_id'] != user_id and request.cookies.get("vote_question_"+user_question['id']) != "1" %}
+            <form method="GET" action="/question/{{user_question['id']}}/vote">
+              <input type="submit" value="Add vote" />
+            </form>
+            {% endif %}
+          </td>
           <td>{{user_question['message']}}</td>
           <td>
             {% if user_question['image'] %}

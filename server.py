@@ -28,7 +28,7 @@ def user_acess(id):
 @app.route("/")
 @app.route("/")
 @app.route("/list")
-def question_list():
+def question_list(messages_msg=None):
     user_id = util.get_user_id(request)
     with open(QUESTIONS_FILE, "r", newline="") as csvfile:
         questions = list(csv.DictReader(csvfile))
@@ -51,7 +51,7 @@ def question_list():
                 else i[order_by],
             )
     response = make_response(
-        render_template("question_list.html", user_questions=questions, user_id=user_id)
+        render_template("question_list.html", request=request, user_questions=questions, messages_msg=messages_msg, user_id=user_id)
     )
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
@@ -74,7 +74,7 @@ def question_detail(question_id, messages_msg=None):
             question=question,
             answers=answers_to_question,
             messages_msg=messages_msg,
-            user_acess=user_acess,
+            user_id=user_id,
         )
     )
     if not request.cookies.get("userID"):
@@ -248,6 +248,29 @@ def delete_question(question_id):
             url_for("question_list", question_id=question_id, messages_msg=messages_msg)
         )
     )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
+@app.route("/question/<int:question_id>/vote")
+def vote_question(question_id):
+    messages_msg = ""
+    user_id = util.get_user_id(request)
+    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
+        questions = list(csv.DictReader(csvfile))
+    question = next((q for q in questions if q["id"] == str(question_id)), None)
+    response = make_response(
+        redirect(
+            url_for("question_list", messages_msg=messages_msg)
+        )
+    )
+    if user_id != question["user_id"]:
+        messages_msg = messages["vote_question"]
+        data_hendler.add_vote(QUESTIONS_FILE, question_id, "id", QUESTION_HEADER)
+        response.set_cookie("vote_question_"+str(question_id), "1")
+    else:
+        messages_msg = messages["cant_vote"]
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response

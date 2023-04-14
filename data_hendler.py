@@ -73,3 +73,19 @@ def delete_data(file, data_to_delete, key, headers):
     old_file = readfile(file)
     new_file = remove_data_from_list(old_file, data_to_delete, key)
     write_new_file(file, headers, new_file)
+
+
+def add_vote_in_list(list, data, key):
+    return_list = []
+    for e in list:
+        if str(data) == e[key]:
+            e["vote_number"] = int(e["vote_number"]) + 1
+            e["vote_number"] = str(e["vote_number"])
+        return_list.append(e)
+    return return_list
+
+
+def add_vote(file, data_to_delete, key, headers):
+    old_file = readfile(file)
+    new_file = add_vote_in_list(old_file, data_to_delete, key)
+    write_new_file(file, headers, new_file)

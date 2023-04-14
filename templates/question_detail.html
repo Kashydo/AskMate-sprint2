@@ -21,7 +21,7 @@
       <form method="GET" action="/">
         <input type="submit" value="Return to main page" />
       </form>
-      {% if user_acess(question['user_id']) %}
+      {% if question['user_id'] == user_id %}
       <form method="GET" action="/question/{{question['id']}}/delete">
         <input type="submit" value="Delete question" />
       </form>
@@ -35,7 +35,8 @@
     </div>
     {% if messages_msg %}
     <div>{{messages_msg}}</div>
-    {% endif %} {% if question is not none %}
+    {% endif %}
+    {% if question is not none %}
     <main>
       <h1>{{ question['title'] }}</h1>
       <p>{{ question['message'] }}</p>
