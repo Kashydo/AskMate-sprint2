@@ -47,8 +47,14 @@
       {% endif %} {% if answers is not none %} {%for answer in answers %}
       <div>
         <p>
-          Votes: {{answer['vote_number']}} Answe ID: {{answer['id']}} Date:
-          {{answer['submission_time'] | post_time}}
+          Votes: {{answer['vote_number']}} <br />
+          {% if answer['user_id'] != user_id and request.cookies.get("vote_answer_"+question['id']+"-"+answer['id']) != "1" %}
+          <form method="GET" action="/question/{{question['id']}}/vote/{{answer['id']}}">
+            <input type="submit" value="Add vote" />
+          </form>
+          {% endif %}
+          Answe ID: {{answer['id']}} <br />
+          Date: {{answer['submission_time'] | post_time}}
         </p>
         <p>{{answer['message']}}</p>
         {% if answer['image'] %}

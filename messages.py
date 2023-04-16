@@ -5,6 +5,6 @@ messages = {
     "delete_question": "Question has been deleted",
     "cant_delete": "You can't delete this",
     "edited_question":"Question has been edited",
-    "vote_question": "Vote has been added",
+    "vote_added": "Vote has been added",
     "cant_vote": "You can't vote for this",
 }

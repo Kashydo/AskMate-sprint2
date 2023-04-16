@@ -17,14 +17,6 @@ from jinja2 import Environment
 
 app = Flask(__name__)
 
-
-def user_acess(id):
-    user_id = util.get_user_id(request)
-    if user_id == id:
-        return True
-    return False
-
-
 @app.route("/")
 @app.route("/")
 @app.route("/list")
@@ -58,7 +50,7 @@ def question_list(messages_msg=None):
     return response
 
 
-@app.route("/question/<question_id>")
+@app.route("/question/<question_id>/")
 @app.route("/question/<question_id>/<string:messages_msg>")
 def question_detail(question_id, messages_msg=None):
     user_id = util.get_user_id(request)
@@ -266,9 +258,32 @@ def vote_question(question_id):
         )
     )
     if user_id != question["user_id"]:
-        messages_msg = messages["vote_question"]
+        messages_msg = messages["vote_added"]
         data_hendler.add_vote(QUESTIONS_FILE, question_id, "id", QUESTION_HEADER)
         response.set_cookie("vote_question_"+str(question_id), "1")
+    else:
+        messages_msg = messages["cant_vote"]
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
+@app.route("/question/<int:question_id>/vote/<int:answer_id>")
+def vote_answer(question_id, answer_id):
+    messages_msg = ""
+    user_id = util.get_user_id(request)
+    with open(ANSWER_FILE, "r", newline="") as csvfile:
+        answers = list(csv.DictReader(csvfile))
+    answer = next((a for a in answers if a["id"] == str(answer_id)), None)
+    response = make_response(
+        redirect(
+            url_for("question_detail", question_id=question_id,  messages_msg=messages_msg)
+        )
+    )
+    if user_id != answer["user_id"]:
+        messages_msg = messages["vote_added"]
+        data_hendler.add_vote(ANSWER_FILE, answer_id, "id", ANSWER_HEADER)
+        response.set_cookie("vote_answer_"+str(question_id)+"-"+str(answer_id), "1")
     else:
         messages_msg = messages["cant_vote"]
     if not request.cookies.get("userID"):
