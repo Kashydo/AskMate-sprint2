@@ -1,6 +1,10 @@
 import csv
 import os
 
+from psycopg2 import sql
+from psycopg2.extras import RealDictCursor
+
+import database_common
 
 DATA_FILE_PATH = (
     os.getenv("DATA_FILE_PATH") if "DATA_FILE_PATH" in os.environ else "data.csv"
@@ -89,3 +93,27 @@ def add_vote(file, data_to_delete, key, headers):
     old_file = readfile(file)
     new_file = add_vote_in_list(old_file, data_to_delete, key)
     write_new_file(file, headers, new_file)
+
+
+def get_order_string(order_by, order_direction):
+    order_string = ""
+    match order_by:
+        case "title":
+            order_string = " ORDER BY title"
+        case "submission_time":
+            order_string = " ORDER BY submission_time"
+        case "vote_number":
+            order_string = " ORDER BY vote_number"
+
+    if order_direction == 'desc': order_string += " DESC"
+    return order_string
+
+@database_common.connection_handler
+def readquestions(cursor, order_by, order_direction):
+    order_string = get_order_string(order_by, order_direction)
+    query = f"""
+        SELECT id, submission_time, view_number, vote_number, title, message, user_id
+        FROM questions
+        {order_string}"""
+    cursor.execute(query)
+    return cursor.fetchall()

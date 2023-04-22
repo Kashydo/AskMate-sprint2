@@ -18,35 +18,12 @@ from jinja2 import Environment
 app = Flask(__name__)
 
 @app.route("/")
-@app.route("/")
-@app.route("/list")
+@app.route("/list/")
 def question_list(messages_msg=None):
     user_id = util.get_user_id(request)
-    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
-        questions = list(csv.DictReader(csvfile))
-    order_by = request.args.get("order_by")
-    order_direction = request.args.get("order_direction")
-    if order_by != None:
-        if order_direction == "desc":
-            questions = sorted(
-                questions,
-                key=lambda i: int(i[order_by])
-                if i[order_by].isnumeric()
-                else i[order_by],
-                reverse=True,
-            )
-        else:
-            questions = sorted(
-                questions,
-                key=lambda i: int(i[order_by])
-                if i[order_by].isnumeric()
-                else i[order_by],
-            )
-    response = make_response(
-        render_template("question_list.html", request=request, user_questions=questions, messages_msg=messages_msg, user_id=user_id)
-    )
-    if not request.cookies.get("userID"):
-        response.set_cookie("user_id", user_id)
+    questions = data_hendler.readquestions(request.args.get("order_by"), request.args.get("order_direction"))
+    response = make_response(render_template("question_list.html", request=request, user_questions=questions, messages_msg=messages_msg, user_id=user_id))
+    if not request.cookies.get("userID"): response.set_cookie("user_id", user_id)
     return response
 
 

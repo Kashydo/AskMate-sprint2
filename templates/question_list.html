@@ -65,7 +65,7 @@
           <td>{{user_question['submission_time'] | post_time}}</td>
           <td>
             {{user_question['vote_number']}}
-            {% if user_question['user_id'] != user_id and request.cookies.get("vote_question_"+user_question['id']) != "1" %}
+            {% if user_question['user_id'] != user_id and request.cookies.get("vote_question_"+user_question['id']|string) != "1" %}
             <form method="GET" action="/question/{{user_question['id']}}/vote">
               <input type="submit" value="Add vote" />
             </form>
