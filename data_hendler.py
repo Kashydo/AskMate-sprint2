@@ -109,7 +109,7 @@ def get_order_string(order_by, order_direction):
     return order_string
 
 @database_common.connection_handler
-def readquestions(cursor, order_by, order_direction):
+def read_questions(cursor, order_by, order_direction):
     order_string = get_order_string(order_by, order_direction)
     query = f"""
         SELECT id, submission_time, view_number, vote_number, title, message, user_id
