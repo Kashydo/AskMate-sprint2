@@ -119,17 +119,39 @@ def get_order_string(order_by, order_direction):
         case "vote_number":
             order_string = " ORDER BY vote_number"
 
-    if order_direction == "desc":
+    if order_string != "" and order_direction == 'desc':
         order_string += " DESC"
     return order_string
 
 
 @database_common.connection_handler
-def read_questions(cursor, order_by, order_direction):
+def read_questions(cursor, order_by = None, order_direction = None):
     order_string = get_order_string(order_by, order_direction)
     query = f"""
         SELECT id, submission_time, view_number, vote_number, title, message, user_id
         FROM questions
+        {order_string}"""
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def read_question(cursor, id):
+    query = f"""
+        SELECT id, submission_time, view_number, vote_number, title, message, user_id
+        FROM questions
+        WHERE id = {id}"""
+    cursor.execute(query)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def read_answers(cursor, question_id, order_by = None, order_direction = None):
+    order_string = get_order_string(order_by, order_direction)
+    query = f"""
+        SELECT id, submission_time, vote_number, message, user_id
+        FROM answers
+        WHERE question_id = {question_id}
         {order_string}"""
     cursor.execute(query)
     return cursor.fetchall()

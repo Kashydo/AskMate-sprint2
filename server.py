@@ -43,17 +43,13 @@ def question_list(messages_msg=None):
 @app.route("/question/<question_id>/<string:messages_msg>")
 def question_detail(question_id, messages_msg=None):
     user_id = util.get_user_id(request)
-    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
-        questions = list(csv.DictReader(csvfile))
-    question = next((q for q in questions if q["id"] == question_id), None)
-    answers_to_question = data_hendler.read_specific_data(
-        ANSWER_FILE, "question_id", question_id
-    )
+    question = data_hendler.read_question(question_id)
+    answers = data_hendler.read_answers(question_id)
     response = make_response(
         render_template(
             "question_detail.html",
             question=question,
-            answers=answers_to_question,
+            answers=answers,
             messages_msg=messages_msg,
             user_id=user_id,
         )
@@ -68,7 +64,7 @@ def question():
     user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
-        # question_id = util.generate_id(QUESTIONS_FILE)
+        question_id = util.generate_id(QUESTIONS_FILE)
         submision_time = round(datetime.datetime.now().timestamp())
         views = 0
         vote = 0

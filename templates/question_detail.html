@@ -36,40 +36,43 @@
     {% if messages_msg %}
     <div>{{messages_msg}}</div>
     {% endif %}
-    {% if question is not none %}
     <main>
+      {% if question is not none %}
       <h1>{{ question['title'] }}</h1>
       <p>{{ question['message'] }}</p>
       <br />
       <h1>Answers</h1>
       {% else %}
       <p>There is no question.</p>
-      {% endif %} {% if answers is not none %} {%for answer in answers %}
-      <div>
-        <p>
-          Votes: {{answer['vote_number']}} <br />
-          {% if answer['user_id'] != user_id and request.cookies.get("vote_answer_"+question['id']+"-"+answer['id']) != "1" %}
-          <form method="GET" action="/question/{{question['id']}}/vote/{{answer['id']}}">
-            <input type="submit" value="Add vote" />
+      {% endif %}
+      {% if answers|length > 0 %}
+        {%for answer in answers %}
+        <div>
+          <p>
+            Votes: {{answer['vote_number']}} <br />
+            {% if answer['user_id'] != user_id and request.cookies.get("vote_answer_"+question['id']|string+"-"+answer['id']|string) != "1" %}
+            <form method="GET" action="/question/{{question['id']}}/vote/{{answer['id']}}">
+              <input type="submit" value="Add vote" />
+            </form>
+            {% endif %}
+            Answe ID: {{answer['id']}} <br />
+            Date: {{answer['submission_time'] | post_time}}
+          </p>
+          <p>{{answer['message']}}</p>
+          {% if answer['image'] %}
+          <img src="/{{answer['image']}}" width="200" />
+          {% endif %}
+          {% if answer['user_id'] == user_id %}
+          <form
+            method="GET"
+            action="/question/{{question['id']}}/delete/{{answer['id']}}"
+          >
+            <input type="submit" value="Delete answer" />
           </form>
           {% endif %}
-          Answe ID: {{answer['id']}} <br />
-          Date: {{answer['submission_time'] | post_time}}
-        </p>
-        <p>{{answer['message']}}</p>
-        {% if answer['image'] %}
-        <img src="/{{answer['image']}}" width="200" />
-        {% endif %}
-        {% if answer['user_id'] == user_id %}
-        <form
-          method="GET"
-          action="/question/{{question['id']}}/delete/{{answer['id']}}"
-        >
-          <input type="submit" value="Delete answer" />
-        </form>
-        {% endif %}
-      </div>
-      {% endfor %} {% else %}
+        </div>
+        {% endfor %}
+      {% else %}
       <p>There are no answers yet</p>
       {% endif %}
     </main>
