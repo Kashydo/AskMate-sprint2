@@ -1,10 +1,15 @@
 import csv
 import os
+import datetime
 
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
 
+import util
 import database_common
+from config import *
+from errors import *
+from messages import *
 
 DATA_FILE_PATH = (
     os.getenv("DATA_FILE_PATH") if "DATA_FILE_PATH" in os.environ else "data.csv"
@@ -128,7 +133,7 @@ def get_order_string(order_by, order_direction):
 def read_questions(cursor, order_by = None, order_direction = None):
     order_string = get_order_string(order_by, order_direction)
     query = f"""
-        SELECT id, submission_time, view_number, vote_number, title, message, user_id
+        SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
         FROM questions
         {order_string}"""
     cursor.execute(query)
@@ -138,7 +143,7 @@ def read_questions(cursor, order_by = None, order_direction = None):
 @database_common.connection_handler
 def read_question(cursor, id):
     query = f"""
-        SELECT id, submission_time, view_number, vote_number, title, message, user_id
+        SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
         FROM questions
         WHERE id = {id}"""
     cursor.execute(query)
@@ -149,9 +154,56 @@ def read_question(cursor, id):
 def read_answers(cursor, question_id, order_by = None, order_direction = None):
     order_string = get_order_string(order_by, order_direction)
     query = f"""
-        SELECT id, submission_time, vote_number, message, user_id
+        SELECT id, submission_time, vote_number, message, image, user_id
         FROM answers
         WHERE question_id = {question_id}
         {order_string}"""
     cursor.execute(query)
     return cursor.fetchall()
+
+@database_common.connection_handler
+def add_question(cursor, request, user_id):
+    errors_msg = []
+    question_id = 0
+    submision_time = round(datetime.datetime.now().timestamp())
+    view_number = 0
+    vote_number = 0
+    title = request.form.get("title")
+    message = request.form.get("message")
+    imagename = ""
+    if len(title) == 0:
+        errors_msg.append(errors["empty_title"])
+    if len(message) == 0:
+        errors_msg.append(errors["empty_message"])
+    if "image" in request.files:
+        image = request.files["image"]
+        imagename = image.filename
+        if image.filename != "":
+            if not util.is_allowed_file_extension(image.filename):
+                errors_msg.append(errors["wrong_file_extension"])
+
+    if len(errors_msg) == 0:
+
+        query = f"""
+            INSERT INTO questions(
+            submission_time, view_number, vote_number, title, message, image, user_id)
+            VALUES ({submision_time}, {view_number}, {vote_number}, '{title}', '{message}', '', '{user_id}')
+            RETURNING id"""
+        cursor.execute(query)
+        question_id = cursor.fetchone()["id"]
+
+        if imagename != "":
+            imagename = (
+                IMAGES_FOLDER
+                + str(question_id)
+                + "."
+                + util.get_file_extension(imagename)
+            )
+            image.save(imagename)
+            query = f"""
+                UPDATE questions
+                SET image='{imagename}'
+                WHERE id={question_id}"""
+            cursor.execute(query)
+
+    return errors_msg, question_id

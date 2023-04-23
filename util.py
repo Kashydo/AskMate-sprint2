@@ -19,7 +19,7 @@ def is_allowed_file_extension(filename):
 
 
 def get_file_extension(filename):
-    return filename.rsplit(".", 1)[1].lower()
+    return filename.rsplit(".", 1)[1].lower() if filename != "" else ""
 
 
 def generate_user_id(
