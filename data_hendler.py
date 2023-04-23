@@ -180,8 +180,8 @@ def add_question(cursor, request, user_id):
     if "image" in request.files:
         image = request.files["image"]
         imagename = image.filename
-        if image.filename != "":
-            if not util.is_allowed_file_extension(image.filename):
+        if imagename != "":
+            if not util.is_allowed_file_extension(imagename):
                 errors_msg.append(errors["wrong_file_extension"])
 
     if len(errors_msg) == 0:
@@ -205,6 +205,96 @@ def add_question(cursor, request, user_id):
                 UPDATE questions
                 SET image='{imagename}'
                 WHERE id={question_id}"""
+            cursor.execute(query)
+
+    return errors_msg, question_id
+
+
+@database_common.connection_handler
+def add_answer(cursor, request, user_id, question_id):
+    errors_msg = []
+    answer_id = 0
+    submision_time = round(datetime.datetime.now().timestamp())
+    vote_number = 0
+    message = request.form.get("message")
+    imagename = ""
+    if len(message) == 0:
+        errors_msg.append(errors["empty_message"])
+    if "image" in request.files:
+        image = request.files["image"]
+        imagename = image.filename
+        if imagename != "":
+            if not util.is_allowed_file_extension(imagename):
+                errors_msg.append(errors["wrong_file_extension"])
+
+    if len(errors_msg) == 0:
+        query = f"""
+            INSERT INTO answers(
+            question_id, submission_time, vote_number, message, image, user_id)
+            VALUES ({question_id}, {submision_time}, {vote_number}, '{message}', '', '{user_id}')
+            RETURNING id"""
+        cursor.execute(query)
+        answer_id = cursor.fetchone()["id"]
+
+        if imagename != "":
+            imagename = (
+                IMAGES_FOLDER
+                + str(question_id)
+                + "-"
+                + str(answer_id)
+                + "."
+                + util.get_file_extension(imagename)
+            )
+            image.save(imagename)
+            query = f"""
+                UPDATE answers
+                SET image='{imagename}'
+                WHERE id={answer_id}"""
+            cursor.execute(query)
+
+    return errors_msg, question_id
+
+
+@database_common.connection_handler
+def add_answer(cursor, request, user_id, question_id):
+    errors_msg = []
+    answer_id = 0
+    submision_time = round(datetime.datetime.now().timestamp())
+    vote_number = 0
+    message = request.form.get("message")
+    imagename = ""
+    if len(message) == 0:
+        errors_msg.append(errors["empty_message"])
+    if "image" in request.files:
+        image = request.files["image"]
+        imagename = image.filename
+        if imagename != "":
+            if not util.is_allowed_file_extension(imagename):
+                errors_msg.append(errors["wrong_file_extension"])
+
+    if len(errors_msg) == 0:
+        query = f"""
+            INSERT INTO answers(
+            question_id, submission_time, vote_number, message, image, user_id)
+            VALUES ({question_id}, {submision_time}, {vote_number}, '{message}', '', '{user_id}')
+            RETURNING id"""
+        cursor.execute(query)
+        answer_id = cursor.fetchone()["id"]
+
+        if imagename != "":
+            imagename = (
+                IMAGES_FOLDER
+                + str(question_id)
+                + "-"
+                + str(answer_id)
+                + "."
+                + util.get_file_extension(imagename)
+            )
+            image.save(imagename)
+            query = f"""
+                UPDATE answers
+                SET image='{imagename}'
+                WHERE id={answer_id}"""
             cursor.execute(query)
 
     return errors_msg, question_id
