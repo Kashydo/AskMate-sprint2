@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="static\images\styles.css" />
+    <title>Ask Mate</title>
+  </head>
+  <body>
+    <header>
+      <form method="GET" action="/add-question">
+        <input type="submit" value="Ask question" />
+      </form>
+      <form method="POST" action="/search">
+        <input type="text" name="search" placeholder="Search..." />
+        <button type="submit">Search</button>
+      </form>
+    </header>
+    <main>
+      <h1>Search</h1>
+      <fieldset>
+        <label for="dropdown"
+          >Sort
+          <select
+            id="dropdown"
+            name="dropdown"
+            onchange="if (this.value)window.location.href=this.value"
+          >
+            <option value="">(select one)</option>
+            <option value="/list?order_by=title&order_direction=asc">
+              by title ascending
+            </option>
+            <option value="/list?order_by=title&order_direction=desc">
+              by title descending
+            </option>
+            <option value="/list?order_by=submission_time&order_direction=asc">
+              by submision time ascending
+            </option>
+            <option value="/list?order_by=submission_time&order_direction=desc">
+              by submision time descending
+            </option>
+            <option value="/list?order_by=vote_number&order_direction=asc">
+              by votes ascending
+            </option>
+            <option value="/list?order_by=vote_number&order_direction=desc">
+              by votes descending
+            </option>
+          </select>
+        </label>
+      </fieldset>
+      {% if messages_msg %}
+      <div>{{messages_msg}}</div>
+      {% endif %}
+      <table>
+        <tr>
+          <th>Id</th>
+          <th>Question title</th>
+          <th>submission_time</th>
+          <th>vote_number</th>
+          <th>message</th>
+          <th>imag</th>
+        </tr>
+        {%for user_question in found_questions %}
+        <tr>
+          <td>
+            <a href="/question/{{user_question['id']}}"
+              >{{user_question['id']}}</a
+            >
+          </td>
+          <td>{{user_question['title']}}</td>
+          <td>{{user_question['submission_time'] | post_time}}</td>
+          <td>
+            {{user_question['vote_number']}} {% if user_question['user_id'] !=
+            user_id and
+            request.cookies.get("vote_question_"+user_question['id']|string) !=
+            "1" %}
+            <form method="GET" action="/question/{{user_question['id']}}/vote">
+              <input type="submit" value="Add vote" />
+            </form>
+            {% endif %}
+          </td>
+          <td>{{user_question['message']}}</td>
+          <td>
+            {% if user_question['image'] %}
+            <img src="{{user_question['image']}}" width="200" />
+            {% endif %}
+          </td>
+        </tr>
+        {%endfor%}
+      </table>
+    </main>
+  </body>
+</html>

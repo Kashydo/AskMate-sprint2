@@ -327,5 +327,30 @@ def question_edit(question_id):
         return redirect(url_for("question_list"))
 
 
+@app.route("/search", methods=["GET", "POST"])
+def question_search(messages_msg=None):
+    user_id = util.get_user_id(request)
+    if request.method == "POST":
+        phrase = request.form.get("search")
+        if phrase.rstrip() == "":
+            return redirect(url_for("question_list"))
+        else:
+            questions = data_hendler.find_question(phrase)
+    else:
+        questions = None
+    response = make_response(
+        render_template(
+            "question_search.html",
+            request=request,
+            found_questions=questions,
+            messages_msg=messages_msg,
+            user_id=user_id,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
 if __name__ == "__main__":
     app.run()

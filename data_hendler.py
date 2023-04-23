@@ -55,6 +55,7 @@ def addanswer(cursor, new_answer: dict):
     cursor.execute(query)
 
 
+@database_common.connection_handler
 def readfile(file):
     with open(file, "r") as f:
         return list(csv.DictReader(f))
@@ -124,13 +125,13 @@ def get_order_string(order_by, order_direction):
         case "vote_number":
             order_string = " ORDER BY vote_number"
 
-    if order_string != "" and order_direction == 'desc':
+    if order_string != "" and order_direction == "desc":
         order_string += " DESC"
     return order_string
 
 
 @database_common.connection_handler
-def read_questions(cursor, order_by = None, order_direction = None):
+def read_questions(cursor, order_by=None, order_direction=None):
     order_string = get_order_string(order_by, order_direction)
     query = f"""
         SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
@@ -151,7 +152,7 @@ def read_question(cursor, id):
 
 
 @database_common.connection_handler
-def read_answers(cursor, question_id, order_by = None, order_direction = None):
+def read_answers(cursor, question_id, order_by=None, order_direction=None):
     order_string = get_order_string(order_by, order_direction)
     query = f"""
         SELECT id, submission_time, vote_number, message, image, user_id
@@ -161,11 +162,12 @@ def read_answers(cursor, question_id, order_by = None, order_direction = None):
     cursor.execute(query)
     return cursor.fetchall()
 
+
 @database_common.connection_handler
 def add_question(cursor, request, user_id):
     errors_msg = []
     question_id = 0
-    submision_time = round(datetime.datetime.now().timestamp())
+    submision_time = datetime.datetime.now().timestamp()
     view_number = 0
     vote_number = 0
     title = request.form.get("title")
@@ -183,7 +185,6 @@ def add_question(cursor, request, user_id):
                 errors_msg.append(errors["wrong_file_extension"])
 
     if len(errors_msg) == 0:
-
         query = f"""
             INSERT INTO questions(
             submission_time, view_number, vote_number, title, message, image, user_id)
@@ -207,3 +208,16 @@ def add_question(cursor, request, user_id):
             cursor.execute(query)
 
     return errors_msg, question_id
+
+
+@database_common.connection_handler
+def find_question(cursor, phrase):
+    query = f"""
+    SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
+    FROM questions
+    WHERE title ILIKE '%{phrase}%'
+    OR
+    message ILIKE '%{phrase}%'
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
