@@ -110,24 +110,15 @@ def answer(question_id):
     return response
 
 
-@app.route("/question/<int:question_id>/delete/<int:answer_id>")
-def delete_answer(question_id, answer_id):
+@app.route("/question/<int:question_id>/delete")
+def delete_question(question_id):
     user_id = util.get_user_id(request)
-    with open(ANSWER_FILE, "r", newline="") as csvfile:
-        answers = list(csv.DictReader(csvfile))
-    answer = next((a for a in answers if a["id"] == str(answer_id)), None)
-    if user_id == answer["user_id"]:
-        messages_msg = messages["delete_answer"]
-        data_hendler.delete_data(ANSWER_FILE, answer_id, "id", ANSWER_HEADER)
-    else:
-        messages_msg = messages["cant_delete"]
+    errors_msg = []
+    errors_msg = data_hendler.delete_question(question_id, user_id)
+
     response = make_response(
         redirect(
-            url_for(
-                "question_detail",
-                question_id=question_id,
-                messages_msg=messages_msg,
-            )
+            url_for("question_list", question_id=question_id, errors_msg=errors_msg)
         )
     )
     if not request.cookies.get("userID"):
@@ -135,29 +126,15 @@ def delete_answer(question_id, answer_id):
     return response
 
 
-@app.route("/question/<int:question_id>/delete")
-def delete_question(question_id):
+@app.route("/question/<int:question_id>/delete/<int:answer_id>")
+def delete_answer(question_id, answer_id):
     user_id = util.get_user_id(request)
-    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
-        questions = list(csv.DictReader(csvfile))
-    question = next((q for q in questions if q["id"] == str(question_id)), None)
-    if user_id == question["user_id"]:
-        messages_msg = messages["delete_question"]
-        data_hendler.delete_data(QUESTIONS_FILE, question_id, "id", QUESTION_HEADER)
+    errors_msg = []
+    errors_msg = data_hendler.delete_answer(answer_id, user_id)
 
-        with open(ANSWER_FILE, "r", newline="") as csvfile:
-            answers = list(csv.DictReader(csvfile))
-        for a in answers:
-            if a["question_id"] == str(question_id):
-                messages_msg = messages["delete_answer"]
-                data_hendler.delete_data(
-                    ANSWER_FILE, question_id, "question_id", ANSWER_HEADER
-                )
-    else:
-        messages_msg = messages["cant_delete"]
     response = make_response(
         redirect(
-            url_for("question_list", question_id=question_id, messages_msg=messages_msg)
+            url_for("question_detail", question_id=question_id, errors_msg=errors_msg)
         )
     )
     if not request.cookies.get("userID"):

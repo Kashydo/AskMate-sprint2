@@ -256,48 +256,67 @@ def add_answer(cursor, request, user_id, question_id):
 
 
 @database_common.connection_handler
-def add_answer(cursor, request, user_id, question_id):
+def delete_question(cursor, question_id, user_id):
     errors_msg = []
-    answer_id = 0
-    submision_time = round(datetime.datetime.now().timestamp())
-    vote_number = 0
-    message = request.form.get("message")
-    imagename = ""
-    if len(message) == 0:
-        errors_msg.append(errors["empty_message"])
-    if "image" in request.files:
-        image = request.files["image"]
-        imagename = image.filename
-        if imagename != "":
-            if not util.is_allowed_file_extension(imagename):
-                errors_msg.append(errors["wrong_file_extension"])
+    query = f"""
+        SELECT image, user_id
+        FROM questions
+        WHERE id = {question_id}"""
+    cursor.execute(query)
+    question = cursor.fetchone()
 
-    if len(errors_msg) == 0:
+    if user_id == question['user_id']:
         query = f"""
-            INSERT INTO answers(
-            question_id, submission_time, vote_number, message, image, user_id)
-            VALUES ({question_id}, {submision_time}, {vote_number}, '{message}', '', '{user_id}')
-            RETURNING id"""
+            SELECT image
+            FROM answers
+            WHERE question_id = {question_id}"""
         cursor.execute(query)
-        answer_id = cursor.fetchone()["id"]
+        answers = cursor.fetchall()
+        for answer in answers:
+            if answer["image"] != "" and answer["image"] != None:
+                os.remove(answer["image"])
 
-        if imagename != "":
-            imagename = (
-                IMAGES_FOLDER
-                + str(question_id)
-                + "-"
-                + str(answer_id)
-                + "."
-                + util.get_file_extension(imagename)
-            )
-            image.save(imagename)
-            query = f"""
-                UPDATE answers
-                SET image='{imagename}'
-                WHERE id={answer_id}"""
-            cursor.execute(query)
+        query = f"""
+            DELETE FROM answers
+            WHERE question_id = {question_id}"""
+        cursor.execute(query)
 
-    return errors_msg, question_id
+        query = f"""
+            DELETE FROM questions
+            WHERE id = {question_id}"""
+        cursor.execute(query)
+
+        if question['image'] != "" and question['image'] != None:
+            os.remove(question['image'])
+    else:
+        errors_msg.append(errors["cant_delete"])
+
+    return errors_msg
+
+
+@database_common.connection_handler
+def delete_answer(cursor, answer_id, user_id):
+    errors_msg = []
+    query = f"""
+        SELECT image, user_id
+        FROM answers
+        WHERE id = {answer_id}"""
+    cursor.execute(query)
+    answer = cursor.fetchone()
+
+    if user_id == answer['user_id']:
+
+        query = f"""
+            DELETE FROM answers
+            WHERE id = {answer_id}"""
+        cursor.execute(query)
+
+        if answer['image'] != "" and answer['image'] != None:
+            os.remove(answer['image'])
+    else:
+        errors_msg.append(errors["cant_delete"])
+
+    return errors_msg
 
 
 @database_common.connection_handler
