@@ -17,13 +17,25 @@ from jinja2 import Environment
 
 app = Flask(__name__)
 
+
 @app.route("/")
 @app.route("/list/")
 def question_list(messages_msg=None):
     user_id = util.get_user_id(request)
-    questions = data_hendler.read_questions(request.args.get("order_by"), request.args.get("order_direction"))
-    response = make_response(render_template("question_list.html", request=request, user_questions=questions, messages_msg=messages_msg, user_id=user_id))
-    if not request.cookies.get("userID"): response.set_cookie("user_id", user_id)
+    questions = data_hendler.read_questions(
+        request.args.get("order_by"), request.args.get("order_direction")
+    )
+    response = make_response(
+        render_template(
+            "question_list.html",
+            request=request,
+            user_questions=questions,
+            messages_msg=messages_msg,
+            user_id=user_id,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
     return response
 
 
@@ -56,7 +68,7 @@ def question():
     user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
-        question_id = util.generate_id(QUESTIONS_FILE)
+        # question_id = util.generate_id(QUESTIONS_FILE)
         submision_time = round(datetime.datetime.now().timestamp())
         views = 0
         vote = 0
@@ -230,14 +242,12 @@ def vote_question(question_id):
         questions = list(csv.DictReader(csvfile))
     question = next((q for q in questions if q["id"] == str(question_id)), None)
     response = make_response(
-        redirect(
-            url_for("question_list", messages_msg=messages_msg)
-        )
+        redirect(url_for("question_list", messages_msg=messages_msg))
     )
     if user_id != question["user_id"]:
         messages_msg = messages["vote_added"]
         data_hendler.add_vote(QUESTIONS_FILE, question_id, "id", QUESTION_HEADER)
-        response.set_cookie("vote_question_"+str(question_id), "1")
+        response.set_cookie("vote_question_" + str(question_id), "1")
     else:
         messages_msg = messages["cant_vote"]
     if not request.cookies.get("userID"):
@@ -254,13 +264,17 @@ def vote_answer(question_id, answer_id):
     answer = next((a for a in answers if a["id"] == str(answer_id)), None)
     response = make_response(
         redirect(
-            url_for("question_detail", question_id=question_id,  messages_msg=messages_msg)
+            url_for(
+                "question_detail", question_id=question_id, messages_msg=messages_msg
+            )
         )
     )
     if user_id != answer["user_id"]:
         messages_msg = messages["vote_added"]
         data_hendler.add_vote(ANSWER_FILE, answer_id, "id", ANSWER_HEADER)
-        response.set_cookie("vote_answer_"+str(question_id)+"-"+str(answer_id), "1")
+        response.set_cookie(
+            "vote_answer_" + str(question_id) + "-" + str(answer_id), "1"
+        )
     else:
         messages_msg = messages["cant_vote"]
     if not request.cookies.get("userID"):

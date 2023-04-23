@@ -30,10 +30,24 @@ ANSWER_HEADER = [
 ]
 
 
-def addtofile(data, file):
-    with open(file, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(data)
+@database_common.connection_handler
+def addquestion(cursor, new_question: dict):
+    query = f"""
+    INSERT INTO question(
+	submission_time, view_number, vote_number, title, message, image,user_id)
+	VALUES ('{new_question['submission_time']}','{new_question['view_number']}','{new_question['vote_number']}','{new_question['title']}','{new_question['message']}','{new_question['image']}','{new_question['user_id']}')
+    """
+    cursor.execute(query)
+
+
+@database_common.connection_handler
+def addanswer(cursor, new_answer: dict):
+    query = f"""
+    INSERT INTO answer(
+	submission_time, vote_number,question_id, message, image,user_id)
+	VALUES ('{new_answer['submission_time']}','{new_answer['vote_number']}','{new_answer['question_id']}','{new_answer['message']}','{new_answer['image']}','{new_answer['user_id']}')
+    """
+    cursor.execute(query)
 
 
 def readfile(file):
@@ -105,8 +119,10 @@ def get_order_string(order_by, order_direction):
         case "vote_number":
             order_string = " ORDER BY vote_number"
 
-    if order_direction == 'desc': order_string += " DESC"
+    if order_direction == "desc":
+        order_string += " DESC"
     return order_string
+
 
 @database_common.connection_handler
 def read_questions(cursor, order_by, order_direction):
