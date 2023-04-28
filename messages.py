@@ -9,4 +9,5 @@ messages = {
     "edited_question": "Question has been edited",
     "vote_added": "Vote has been added",
     "cant_vote": "You can't vote for this",
+    "added_tag": "Tag has been added",
 }

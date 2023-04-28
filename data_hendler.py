@@ -265,7 +265,7 @@ def delete_question(cursor, question_id, user_id):
     cursor.execute(query)
     question = cursor.fetchone()
 
-    if user_id == question['user_id']:
+    if user_id == question["user_id"]:
         query = f"""
             SELECT image
             FROM answers
@@ -286,8 +286,8 @@ def delete_question(cursor, question_id, user_id):
             WHERE id = {question_id}"""
         cursor.execute(query)
 
-        if question['image'] != "" and question['image'] != None:
-            os.remove(question['image'])
+        if question["image"] != "" and question["image"] != None:
+            os.remove(question["image"])
     else:
         errors_msg.append(errors["cant_delete"])
 
@@ -304,15 +304,14 @@ def delete_answer(cursor, answer_id, user_id):
     cursor.execute(query)
     answer = cursor.fetchone()
 
-    if user_id == answer['user_id']:
-
+    if user_id == answer["user_id"]:
         query = f"""
             DELETE FROM answers
             WHERE id = {answer_id}"""
         cursor.execute(query)
 
-        if answer['image'] != "" and answer['image'] != None:
-            os.remove(answer['image'])
+        if answer["image"] != "" and answer["image"] != None:
+            os.remove(answer["image"])
     else:
         errors_msg.append(errors["cant_delete"])
 
@@ -327,6 +326,106 @@ def find_question(cursor, phrase):
     WHERE title ILIKE '%{phrase}%'
     OR
     message ILIKE '%{phrase}%'
+    """
+    cursor.execute(query)
+    return cursor.fetchall()["id"]
+
+
+@database_common.connection_handler
+def get_all_tags(cursor):
+    query = f"""
+    SELECT DISTINCT name
+    FROM tag
+    ORDER BY name ASC
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def get_tag_by_name(cursor, tag_name):
+    query = f"""
+    SELECT *
+    FROM tag
+    WHERE  name = '{tag_name}'
+    """
+    cursor.execute(query)
+    tag = cursor.fetchone()
+    if tag:
+        return tag
+    else:
+        return None
+
+
+@database_common.connection_handler
+def get_question_by_id(cursor, question_id):
+    query = f"""
+    SELECT *
+    FROM questions
+    WHERE id = {question_id}
+    """
+    cursor.execute(query)
+    question = cursor.fetchone()
+    if question:
+        return question
+    else:
+        return None
+
+
+@database_common.connection_handler
+def add_new_tag(cursor, tag_name):
+    query = f"""
+    INSERT INTO tag(name)
+    VALUES ('{tag_name}')
+    """
+    cursor.execute(query)
+
+
+@database_common.connection_handler
+def add_tag_to_question(cursor, question_id, request):
+    errors_msg = []
+    tag_name = request.form.get("tag_name").lower()
+    existing_tag = request.form.get("existing_tag")
+    if existing_tag:
+        tag = get_tag_by_name(existing_tag)
+    else:
+        if len(tag_name) == 0:
+            errors_msg.append(errors["empty_tag"])
+        else:
+            tag = get_tag_by_name(tag_name)
+            if not tag:
+                tag = add_new_tag(tag_name)
+                tag = get_tag_by_name(tag_name)
+    tag_id = tag["id"]
+    query = """
+        SELECT EXISTS(
+            SELECT 1 FROM question_tag
+            WHERE question_id = %(question_id)s AND tag_id = %(tag_id)s
+        );
+    """
+    cursor.execute(query, {"question_id": question_id, "tag_id": tag_id})
+    row = cursor.fetchone()
+    if row is None:
+        errors_msg.append("tag_exist")
+    if len(errors_msg) == 0:
+        query = f"""
+        INSERT INTO question_tag(
+        question_id, tag_id)
+        VALUES ({question_id}, {tag["id"]});
+        """
+        cursor.execute(query)
+        question_tag = cursor.lastrowid
+    return errors_msg, question_tag
+
+
+@database_common.connection_handler
+def get_tags_for_question(cursor, question_id):
+    query = f"""
+    SELECT name
+    FROM tag
+    RIGHT OUTER JOIN question_tag
+    ON tag.id = question_tag.tag_id
+    WHERE question_id ={question_id}
     """
     cursor.execute(query)
     return cursor.fetchall()

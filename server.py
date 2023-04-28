@@ -45,6 +45,7 @@ def question_detail(question_id, messages_msg=None):
     user_id = util.get_user_id(request)
     question = data_hendler.read_question(question_id)
     answers = data_hendler.read_answers(question_id)
+    tags = data_hendler.get_tags_for_question(question_id)
     response = make_response(
         render_template(
             "question_detail.html",
@@ -52,6 +53,7 @@ def question_detail(question_id, messages_msg=None):
             answers=answers,
             messages_msg=messages_msg,
             user_id=user_id,
+            tags=tags,
         )
     )
     if not request.cookies.get("userID"):
@@ -274,23 +276,61 @@ def question_edit(question_id):
 
 
 @app.route("/search", methods=["GET", "POST"])
-def question_search(messages_msg=None):
+def question_search():
     user_id = util.get_user_id(request)
+    search = request.args.get("q")
     if request.method == "POST":
         phrase = request.form.get("search")
         if phrase.rstrip() == "":
             return redirect(url_for("question_list"))
         else:
             questions = data_hendler.find_question(phrase)
+            search = phrase
+            return redirect(url_for("question_search", q=phrase))
     else:
         questions = None
+        if search is not None:
+            questions = data_hendler.find_question(search)
     response = make_response(
         render_template(
             "question_search.html",
             request=request,
             found_questions=questions,
-            messages_msg=messages_msg,
             user_id=user_id,
+            search=search,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
+@app.route("/question/<int:question_id>/new-tag", methods=["GET", "POST"])
+def add_tag(question_id):
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    all_tags = data_hendler.get_all_tags()
+    if request.method == "POST":
+        errors_msg, question_tag = data_hendler.add_tag_to_question(
+            question_id, request
+        )
+        if len(errors_msg) == 0:
+            messages_msg = messages["added_tag"]
+            return redirect(
+                url_for(
+                    "question_detail",
+                    question_id=question_id,
+                    messages_msg=messages_msg,
+                )
+            )
+    response = make_response(
+        render_template(
+            "add_tag.html",
+            user_id=user_id,
+            errors_msg=errors_msg,
+            all_tags=all_tags,
+            question_id=question_id,
+            form=request.form,
         )
     )
     if not request.cookies.get("userID"):

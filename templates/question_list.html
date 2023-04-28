@@ -9,9 +9,17 @@
       <form method="GET" action="/add-question">
         <input type="submit" value="Ask question" />
       </form>
-      <form method="POST" action="/search">
-        <input type="text" name="search" placeholder="Search..." />
+      <form method="POST" action="{{ url_for('question_search', q=search) }}">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search..."
+          value="{{ search }}"
+        />
         <button type="submit">Search</button>
+        {% if found_questions and search %}
+        <input type="hidden" name="q" value="{{ search }}" />
+        {% endif %}
       </form>
     </header>
     <main>
