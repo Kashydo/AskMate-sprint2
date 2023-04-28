@@ -282,6 +282,12 @@ def delete_question(cursor, question_id, user_id):
         cursor.execute(query)
 
         query = f"""
+            DELETE FROM question_tag
+            WHERE question_id = {question_id}
+        """
+        cursor.execute(query)
+
+        query = f"""
             DELETE FROM questions
             WHERE id = {question_id}"""
         cursor.execute(query)
