@@ -10,6 +10,7 @@ import util
 import datetime
 import data_hendler
 import csv
+import re
 from config import *
 from errors import *
 from messages import *
@@ -303,6 +304,17 @@ def question_search():
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response
+
+
+@app.template_filter("highlight")
+def highlight_filter(text, phrase):
+    if phrase.lower() not in text.lower():
+        return text
+    else:
+        phrase = phrase.upper()
+        compiled = re.compile(re.escape(phrase), re.IGNORECASE)
+        highlighted = compiled.sub(f"<mark>{phrase}</mark>", text)
+        return highlighted
 
 
 @app.route("/question/<int:question_id>/new-tag", methods=["GET", "POST"])

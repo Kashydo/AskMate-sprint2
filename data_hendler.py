@@ -334,7 +334,7 @@ def find_question(cursor, phrase):
     message ILIKE '%{phrase}%'
     """
     cursor.execute(query)
-    return cursor.fetchall()["id"]
+    return cursor.fetchall()
 
 
 @database_common.connection_handler
