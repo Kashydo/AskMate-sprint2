@@ -427,7 +427,7 @@ def add_tag_to_question(cursor, question_id, request):
 @database_common.connection_handler
 def get_tags_for_question(cursor, question_id):
     query = f"""
-    SELECT name
+    SELECT *
     FROM tag
     RIGHT OUTER JOIN question_tag
     ON tag.id = question_tag.tag_id
@@ -435,3 +435,22 @@ def get_tags_for_question(cursor, question_id):
     """
     cursor.execute(query)
     return cursor.fetchall()
+
+
+@database_common.connection_handler
+def delete_tag(cursor, question_id, tag_id, user_id):
+    errors_msg = []
+    query = f"""
+        SELECT user_id
+        FROM questions
+        WHERE id = {question_id}"""
+    cursor.execute(query)
+    questions = cursor.fetchone()
+    if user_id == questions["user_id"]:
+        query = f"""
+            DELETE FROM question_tag
+            WHERE question_id = {question_id} AND tag_id = {tag_id}"""
+        cursor.execute(query)
+    else:
+        errors_msg.append(errors["cant_delete"])
+    return errors_msg

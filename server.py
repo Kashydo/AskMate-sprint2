@@ -338,5 +338,22 @@ def add_tag(question_id):
     return response
 
 
+@app.route(
+    "/question/<int:question_id>/tag/<int:tag_id>/delete", methods=["GET", "POST"]
+)
+def delete_tag(question_id, tag_id):
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    errors_msg = data_hendler.delete_tag(question_id, tag_id, user_id)
+    response = make_response(
+        redirect(
+            url_for("question_detail", question_id=question_id, errors_msg=errors_msg)
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
 if __name__ == "__main__":
     app.run()

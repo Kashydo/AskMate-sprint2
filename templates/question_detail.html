@@ -51,7 +51,18 @@
       <div>
         <h3>Tags</h3>
         {% if tags is not none %} {% for tag in tags %}
-        <p>{{tag['name']}}</p>
+        <div>
+          <p>{{tag['name']}}</p>
+
+          {% if question['user_id'] == user_id and tag['tag_id'] is not none %}
+          <form
+            method="GET"
+            action="/question/{{question['id']}}/tag/{{tag['tag_id']}}/delete"
+          >
+            <input type="submit" value="X" />
+          </form>
+          {% endif %}
+        </div>
         {%endfor%} {%endif%}
       </div>
       <h2>Answers</h2>
