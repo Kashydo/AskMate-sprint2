@@ -51,8 +51,30 @@
       </fieldset>
       {% if messages_msg %}
       <div>{{messages_msg}}</div>
-      {% endif %}
-      <table>
+      {% endif %} {%for user_question in found_questions %}
+      <article>
+        <p>
+          Title:
+          <a href="/question/{{user_question['id']}}"
+            >{{ user_question['title']|highlight(search)|safe }}</a
+          >
+        </p>
+        <p>Submision time: {{user_question['submission_time'] | post_time}}</p>
+        <p>{{ user_question['message']|highlight(search)|safe }}</p>
+      </article>
+      {%endfor%} {%for user_answer in found_answers %}
+      <article>
+        <p>
+          Title:
+          <a href="/question/{{user_answer['question_id']}}"
+            >{{ user_answer['title']|highlight(search)|safe }}</a
+          >
+        </p>
+        <p>Answer</p>
+        <p>{{ user_answer['message']|highlight(search)|safe }}</p>
+      </article>
+      {%endfor%}
+      <!-- <table>
         <tr>
           <th>Id</th>
           <th>Question title</th>
@@ -88,7 +110,7 @@
           </td>
         </tr>
         {%endfor%}
-      </table>
+      </table> -->
     </main>
   </body>
 </html>

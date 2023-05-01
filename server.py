@@ -277,26 +277,29 @@ def question_edit(question_id):
 
 
 @app.route("/search", methods=["GET", "POST"])
-def question_search():
+def search():
     user_id = util.get_user_id(request)
     search = request.args.get("q")
+    questions = None
+    answers = None
+    if search is not None:
+        questions = data_hendler.find_question(search)
+        answers = data_hendler.find_question_and_answers(search)
     if request.method == "POST":
         phrase = request.form.get("search")
         if phrase.rstrip() == "":
             return redirect(url_for("question_list"))
         else:
             questions = data_hendler.find_question(phrase)
+            answers = data_hendler.find_question_and_answers(phrase)
             search = phrase
-            return redirect(url_for("question_search", q=phrase))
-    else:
-        questions = None
-        if search is not None:
-            questions = data_hendler.find_question(search)
+            return redirect(url_for("search", q=phrase))
     response = make_response(
         render_template(
             "question_search.html",
             request=request,
             found_questions=questions,
+            found_answers=answers,
             user_id=user_id,
             search=search,
         )

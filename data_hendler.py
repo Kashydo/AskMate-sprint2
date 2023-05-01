@@ -338,6 +338,30 @@ def find_question(cursor, phrase):
 
 
 @database_common.connection_handler
+def find_answer(cursor, phrase):
+    query = f"""
+    SELECT *
+    FROM answers
+    WHERE message ILIKE '%{phrase}%'
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def find_question_and_answers(cursor, phrase):
+    query = f"""
+    SELECT t2.question_id, t1.title, t2.id, t2.message
+    FROM questions t1
+    RIGHT OUTER JOIN answers t2
+    ON t1.id = t2.question_id
+    WHERE  t2.message ILIKE '%{phrase}%'
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
 def get_all_tags(cursor):
     query = f"""
     SELECT DISTINCT name
