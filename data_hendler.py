@@ -142,6 +142,18 @@ def read_questions(cursor, order_by=None, order_direction=None):
 
 
 @database_common.connection_handler
+def get_5_latest_questions(cursor):
+    query = f"""
+    SELECT *
+    FROM questions
+    ORDER BY submission_time desc
+    LIMIT 5
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
 def read_question(cursor, id):
     query = f"""
         SELECT id, submission_time, view_number, vote_number, title, message, image, user_id

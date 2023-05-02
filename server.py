@@ -20,6 +20,23 @@ app = Flask(__name__)
 
 
 @app.route("/")
+def latest_questions(messages_msg=None):
+    user_id = util.get_user_id(request)
+    questions = data_hendler.get_5_latest_questions()
+    response = make_response(
+        render_template(
+            "main_page.html",
+            request=request,
+            user_questions=questions,
+            messages_msg=messages_msg,
+            user_id=user_id,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
 @app.route("/list/")
 def question_list(messages_msg=None):
     user_id = util.get_user_id(request)
