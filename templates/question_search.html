@@ -61,9 +61,16 @@
         </p>
         <p>Submision time: {{user_question['submission_time'] | post_time}}</p>
         <p>{{ user_question['message']|highlight(search)|safe }}</p>
+        {%for user_answer in found_answers %} {%if user_question['id'] ==
+        user_answer['question_id']%}
+        <p style="margin-left: 40px">
+          {{ user_answer['message']|highlight(search)|safe }}
+        </p>
+        {%endif%} {%endfor%}
       </article>
       {%endfor%} {%for user_answer in found_answers %}
       <article>
+        {% if user_answer['question_id'] not in found_questions['id'] %}
         <p>
           Title:
           <a href="/question/{{user_answer['question_id']}}"
@@ -71,46 +78,12 @@
           >
         </p>
         <p>Answer</p>
-        <p>{{ user_answer['message']|highlight(search)|safe }}</p>
+        <p style="margin-left: 40px">
+          {{ user_answer['message']|highlight(search)|safe }}
+        </p>
+        {%endif%}
       </article>
       {%endfor%}
-      <!-- <table>
-        <tr>
-          <th>Id</th>
-          <th>Question title</th>
-          <th>submission_time</th>
-          <th>vote_number</th>
-          <th>message</th>
-          <th>imag</th>
-        </tr>
-        {%for user_question in found_questions %}
-        <tr>
-          <td>
-            <a href="/question/{{user_question['id']}}"
-              >{{user_question['id']}}</a
-            >
-          </td>
-          <td>{{ user_question['title']|highlight(search)|safe }}</td>
-          <td>{{user_question['submission_time'] | post_time}}</td>
-          <td>
-            {{user_question['vote_number']}} {% if user_question['user_id'] !=
-            user_id and
-            request.cookies.get("vote_question_"+user_question['id']|string) !=
-            "1" %}
-            <form method="GET" action="/question/{{user_question['id']}}/vote">
-              <input type="submit" value="Add vote" />
-            </form>
-            {% endif %}
-          </td>
-          <td>{{ user_question['message']|highlight(search)|safe }}</td>
-          <td>
-            {% if user_question['image'] %}
-            <img src="{{user_question['image']}}" width="200" />
-            {% endif %}
-          </td>
-        </tr>
-        {%endfor%}
-      </table> -->
     </main>
   </body>
 </html>
