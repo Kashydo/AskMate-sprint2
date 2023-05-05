@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='styles.css') }}"
+  />
+    <title>Add comment</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h1>Your comment</h1>
+    {% if errors_msg %}
+    <div>
+      <h3>Errors</h3>
+      <ol>
+        {% for error in errors_msg %}
+        <li>{{error}}</li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
+    <form method="POST" action="" enctype="multipart/form-data">
+      <fieldset>
+        <label for="message">
+          <textarea
+            id="message"
+            name="message"
+            rows="5"
+            cols="100"
+            placeholder="Write your comment here"
+            required
+          >{{form["message"]}}</textarea>
+        </label>
+      </fieldset>
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+</html>

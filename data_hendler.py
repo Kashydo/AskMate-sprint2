@@ -13,6 +13,18 @@ from messages import *
 
 
 @database_common.connection_handler
+def generate_id(cursor, table_name):
+    query = f"""
+
+        SELECT id
+        FROM {table_name}
+        ORDER BY submission_time DESC 
+        LIMIT 1"""
+    cursor.execute(query)
+    result = cursor.fetchone()
+    return result['id'] + 1 if result else 1
+
+@database_common.connection_handler
 def addquestion(cursor, new_question: dict):
     query = f"""
     INSERT INTO question(
@@ -127,6 +139,14 @@ def read_answer(cursor, id):
     cursor.execute(query)
     return cursor.fetchone()
 
+@database_common.connection_handler
+def read_comments(cursor,question_id):
+    query = f"""
+        SELECT id,  message, submission_time
+        FROM comment 
+        WHERE question_id = {question_id}"""
+    cursor.execute(query)
+    return cursor.fetchall()
 
 @database_common.connection_handler
 def add_question(cursor, request, user_id):
@@ -439,4 +459,41 @@ def delete_tag(cursor, question_id, tag_id, user_id):
         cursor.execute(query)
     else:
         errors_msg.append(errors["cant_delete"])
+    return errors_msg
+
+
+@database_common.connection_handler
+def add_comment(cursor, request, user_id, question_id):
+    errors_msg = []
+    comment_id = generate_id('comment')
+    submission_time = round(datetime.datetime.now().timestamp())
+    message = request.form.get("message")
+    edited_count=0
+    if len(message) == 0:
+        errors_msg.append(errors["empty_message"])
+
+    if len(errors_msg) == 0:
+        query = f"""
+            INSERT INTO comment(id,question_id, message, submission_time, edited_count, user_id)
+            VALUES ({comment_id},{question_id},'{message}', to_timestamp({submission_time}) , '{edited_count}', '{user_id}')
+            RETURNING id"""
+        cursor.execute(query)
+
+    return errors_msg, question_id
+
+@database_common.connection_handler
+def delete_comment(cursor, comment_id, user_id):
+    errors_msg = []
+    query = f"""
+        SELECT user_id
+        FROM comment
+        WHERE id = {comment_id}"""
+    cursor.execute(query)
+    comment = cursor.fetchone()
+    if user_id == comment['user_id']:
+        query = f"""
+            DELETE FROM comment
+            WHERE id = {comment_id}"""
+        cursor.execute(query)
+
     return errors_msg
