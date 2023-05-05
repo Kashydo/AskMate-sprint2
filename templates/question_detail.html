@@ -1,26 +1,41 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <title>Question Detail</title>
-    <style>
-      .buttons-container {
-        display: flex;
-        justify-content: space-between;
-        max-width: 300px;
-        margin: 0;
-      }
-      .buttons-container form {
-        flex: 1;
-        margin-right: 10px;
-        margin-bottom: 30 px;
-      }
-    </style>
+    <style></style>
   </head>
   <body>
+    <header>
+      <h2>Ask Mate</h2>
+      <nav>
+        <form method="GET" action="/">
+          <input type="submit" value="Return to main page" />
+        </form>
+        <form method="GET" action="/list">
+          <input type="submit" value="All questions" />
+        </form>
+        <form method="GET" action="/add-question">
+          <input type="submit" value="Ask question" />
+        </form>
+        <form method="POST" action="{{ url_for('search', q=search) }}">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            value="{{ search }}"
+          />
+          <button type="submit">Search</button>
+          {% if found_questions or found_answers and search %}
+          <input type="hidden" name="q" value="{{ search }}" />
+          {% endif %}
+        </form>
+      </nav>
+    </header>
     <div class="buttons-container">
-      <form method="GET" action="/">
-        <input type="submit" value="Return to main page" />
-      </form>
       {% if question['user_id'] == user_id %}
       <form method="GET" action="/question/{{question['id']}}/delete">
         <input type="submit" value="Delete question" />
@@ -46,12 +61,12 @@
     <main>
       {% if question is not none %}
       <h1>{{ question['title'] }}</h1>
-      <p>{{ question['message'] }}</p>
+      <p class="question-text">{{ question['message'] }}</p>
       <br />
       <div>
         <h3>Tags</h3>
         {% if tags is not none %} {% for tag in tags %}
-        <div>
+        <div class="tags">
           <p>{{tag['name']}}</p>
 
           {% if question['user_id'] == user_id and tag['tag_id'] is not none %}
@@ -69,22 +84,13 @@
       {% else %}
       <p>There is no question.</p>
       {% endif %} {% if answers|length > 0 %} {%for answer in answers %}
-
-      <div>
-        Votes: {{answer['vote_number']}} <br />
-        {% if answer['user_id'] != user_id and
-        request.cookies.get("vote_answer_"+question['id']|string+"-"+answer['id']|string)
-        != "1" %}
-
-        <form
-          method="GET"
-          action="/question/{{question['id']}}/vote/{{answer['id']}}"
-        >
-          <input type="submit" value="Add vote" />
-        </form>
-        {% endif %} Answe ID: {{answer['id']}} <br />
-        Date: {{answer['submission_time'] | post_time}}
-
+      <div class="answer">
+        <div class="answer-details">
+          <p>
+            Answe ID: {{answer['id']}} Date:{{answer['submission_time'] |
+            post_time}} Votes: {{answer['vote_number']}}
+          </p>
+        </div>
         <p>{{answer['message']}}</p>
         {% if answer['image'] %}
         <img src="/{{answer['image']}}" width="200" />
@@ -95,7 +101,16 @@
         >
           <input type="submit" value="Delete answer" />
         </form>
-        {% endif %}
+        {% endif %} {% if answer['user_id'] != user_id and
+        request.cookies.get("vote_answer_"+question['id']|string+"-"+answer['id']|string)
+        != "1" %}
+        <form
+          method="GET"
+          action="/question/{{question['id']}}/vote/{{answer['id']}}"
+        >
+          <input type="submit" value="Add vote" />
+          {% endif %}
+        </form>
       </div>
       {% endfor %} {% else %}
       <p>There are no answers yet</p>

@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="static\images\styles.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    />
     <title>Ask Mate</title>
   </head>
   <body>
     <header>
-      <form method="GET" action="/">
-        <input type="submit" value="Return to main page" />
-      </form>
-      <form method="GET" action="/add-question">
-        <input type="submit" value="Ask question" />
-      </form>
-      <form method="POST" action="/search">
-        <input type="text" name="search" placeholder="Search..." />
-        <button type="submit">Search</button>
-      </form>
+      <h2>Ask Mate</h2>
+      <nav>
+        <form method="GET" action="/">
+          <input type="submit" value="Return to main page" />
+        </form>
+        <form method="GET" action="/list">
+          <input type="submit" value="All questions" />
+        </form>
+        <form method="GET" action="/add-question">
+          <input type="submit" value="Ask question" />
+        </form>
+        <form method="POST" action="{{ url_for('search', q=search) }}">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            value="{{ search }}"
+          />
+          <button type="submit">Search</button>
+          {% if found_questions or found_answers and search %}
+          <input type="hidden" name="q" value="{{ search }}" />
+          {% endif %}
+        </form>
+      </nav>
     </header>
     <main>
       <h1>Search result for {{search}}</h1>

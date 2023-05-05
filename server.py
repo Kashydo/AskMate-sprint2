@@ -166,15 +166,13 @@ def delete_answer(question_id, answer_id):
 def vote_question(question_id):
     messages_msg = ""
     user_id = util.get_user_id(request)
-    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
-        questions = list(csv.DictReader(csvfile))
-    question = next((q for q in questions if q["id"] == str(question_id)), None)
+    question = data_hendler.read_question(question_id)
     response = make_response(
         redirect(url_for("question_list", messages_msg=messages_msg))
     )
     if user_id != question["user_id"]:
         messages_msg = messages["vote_added"]
-        data_hendler.add_vote(QUESTIONS_FILE, question_id, "id", QUESTION_HEADER)
+        data_hendler.add_vote(question_id, "questions")
         response.set_cookie("vote_question_" + str(question_id), "1")
     else:
         messages_msg = messages["cant_vote"]
@@ -187,9 +185,7 @@ def vote_question(question_id):
 def vote_answer(question_id, answer_id):
     messages_msg = ""
     user_id = util.get_user_id(request)
-    with open(ANSWER_FILE, "r", newline="") as csvfile:
-        answers = list(csv.DictReader(csvfile))
-    answer = next((a for a in answers if a["id"] == str(answer_id)), None)
+    answer = data_hendler.read_answer(answer_id)
     response = make_response(
         redirect(
             url_for(
@@ -199,7 +195,7 @@ def vote_answer(question_id, answer_id):
     )
     if user_id != answer["user_id"]:
         messages_msg = messages["vote_added"]
-        data_hendler.add_vote(ANSWER_FILE, answer_id, "id", ANSWER_HEADER)
+        data_hendler.add_vote(answer_id, "answers")
         response.set_cookie(
             "vote_answer_" + str(question_id) + "-" + str(answer_id), "1"
         )
@@ -220,9 +216,6 @@ def question_edit(question_id):
     user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
-        with open(QUESTIONS_FILE, "r", newline="") as csvfile:
-            questions = list(csv.DictReader(csvfile))
-        question = next((q for q in questions if q["id"] == question_id), None)
         if question:
             title = request.form.get("title")
             message = str(request.form.get("message"))
@@ -246,25 +239,7 @@ def question_edit(question_id):
                         image.save(imagename)
 
             if len(errors_msg) == 0:
-                question["title"] = title
-                question["message"] = message
-                question["image"] = imagename
-
-                with open(QUESTIONS_FILE, "w", newline="") as csvfile:
-                    fieldnames = [
-                        "id",
-                        "submission_time",
-                        "view_number",
-                        "vote_number",
-                        "title",
-                        "message",
-                        "image",
-                        "user_id",
-                    ]
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                    writer.writeheader()
-                    writer.writerows(questions)
-
+                data_hendler.edit_question(question_id, title, message, image)
                 messages_msg = messages["edited_question"]
                 return redirect(
                     url_for(
@@ -274,9 +249,7 @@ def question_edit(question_id):
                     )
                 )
 
-    with open(QUESTIONS_FILE, "r", newline="") as csvfile:
-        questions = list(csv.DictReader(csvfile))
-    question = next((q for q in questions if q["id"] == question_id), None)
+    question = data_hendler.read_question(question_id)
     if question:
         response = make_response(
             render_template(

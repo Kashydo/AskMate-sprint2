@@ -1,10 +1,40 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <title>Add question</title>
     <meta charset="UTF-8" />
   </head>
   <body>
+    <header>
+      <h2>Ask Mate</h2>
+      <nav>
+        <form method="GET" action="/">
+          <input type="submit" value="Return to main page" />
+        </form>
+        <form method="GET" action="/list">
+          <input type="submit" value="All questions" />
+        </form>
+        <form method="GET" action="/add-question">
+          <input type="submit" value="Ask question" />
+        </form>
+        <form method="POST" action="{{ url_for('search', q=search) }}">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            value="{{ search }}"
+          />
+          <button type="submit">Search</button>
+          {% if found_questions or found_answers and search %}
+          <input type="hidden" name="q" value="{{ search }}" />
+          {% endif %}
+        </form>
+      </nav>
+    </header>
     <h1>Ask question</h1>
     {% if errors_msg %}
     <div>
@@ -19,7 +49,8 @@
     <form method="POST" action="/add-question" enctype="multipart/form-data">
       <fieldset>
         <label for="title"
-          >Title: <input id="title" name="title" type="text" value="{{form["title"]}}" required />
+          >Title: <input id="title" name="title" type="text"
+          value="{{form["title"]}}" required />
         </label>
       </fieldset>
       <fieldset>
@@ -31,11 +62,14 @@
             cols="100"
             placeholder="Write your question here"
             required
-          >{{form["message"]}}</textarea>
+          >
+{{form["message"]}}</textarea
+          >
         </label>
         <p>
           <label for="image"
-            >Upload image: <input id="image" type="file" name="image" value="" />
+            >Upload image:
+            <input id="image" type="file" name="image" value="" />
           </label>
         </p>
       </fieldset>

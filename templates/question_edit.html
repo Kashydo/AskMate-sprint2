@@ -1,21 +1,58 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <title>Edit Question</title>
-</head>
-<body>
+  </head>
+  <body>
+    <header>
+      <h2>Ask Mate</h2>
+      <nav>
+        <form method="GET" action="/">
+          <input type="submit" value="Return to main page" />
+        </form>
+        <form method="GET" action="/list">
+          <input type="submit" value="All questions" />
+        </form>
+        <form method="GET" action="/add-question">
+          <input type="submit" value="Ask question" />
+        </form>
+        <form method="POST" action="{{ url_for('search', q=search) }}">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            value="{{ search }}"
+          />
+          <button type="submit">Search</button>
+          {% if found_questions or found_answers and search %}
+          <input type="hidden" name="q" value="{{ search }}" />
+          {% endif %}
+        </form>
+      </nav>
+    </header>
     <h1>Edit Question</h1>
     <form method="post" enctype="multipart/form-data">
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value="{{ question.title }}"><br><br>
-        <label for="message">Message:</label><br>
-        <textarea id="message" name="message">{{ question.message }}</textarea><br><br>
-        <label for="image">Image:</label><br>
-        <input type="file" id="image" name="image"><br><br>
-        <input type="submit" value="Submit">
+      <label for="title">Title:</label><br />
+      <input
+        type="text"
+        id="title"
+        name="title"
+        value="{{ question.title }}"
+      /><br /><br />
+      <label for="message">Message:</label><br />
+      <textarea id="message" name="message" value="{{ question.title }}">
+{{ question.message }}</textarea
+      ><br /><br />
+      <label for="image">Image:</label><br />
+      <input type="file" id="image" name="image" /><br /><br />
+      <input type="submit" value="Submit" />
     </form>
     <form method="GET" action="/question/{{question['id']}}">
-        <input type="submit" value="Cancel">
+      <input type="submit" value="Cancel" />
     </form>
-</body>
+  </body>
 </html>
