@@ -94,8 +94,12 @@
         <p>{{answer['message']}}</p>
         {% if answer['image'] %}
         <img src="/{{answer['image']}}" width="200" />
-        {% endif %} {% if answer['user_id'] == user_id %}
+        {% endif %} 
         <div class="buttons-container">
+          <form method="GET" action="/question/{{question['id']}}/answer/{{answer['id']}}/new-comment">
+            <input type="submit" value="Add comment to answer" /> 
+          </form>
+          {% if answer['user_id'] == user_id %}
           <form
             method="GET"
             action="/question/{{question['id']}}/delete/{{answer['id']}}"
@@ -103,7 +107,7 @@
             <input type="submit" value="Delete answer" />
           </form>
           <form method="GET" action="/question/{{question['id']}}/answer/{{answer['id']}}/edit">
-            <input type="submit" value="Edit answer" />
+            <input type="submit" value="Edit answer" /> 
           </form>
           {% endif %} {% if answer['user_id'] != user_id and
           request.cookies.get("vote_answer_"+question['id']|string+"-"+answer['id']|string)
@@ -116,6 +120,18 @@
             {% endif %}
           </form>
         </div>
+        {% if comments_to_answer|length > 0 %}
+        {%for comments_to_answer in comments_to_answer %}
+        <div class="answer">
+          <div class="answer-details">
+          <p>
+            Comment ID: {{comments_to_answer['id']}} Date: {{comments_to_answer['submission_time']}}
+          </p>
+          </div>
+            <p>{{comments_to_answer['message']}}</p>
+          </div>
+        {% endfor %}
+      {% endif %}
       </div>
       {% endfor %} {% else %}
       <p>There are no answers yet</p>

@@ -59,18 +59,21 @@ def question_list(messages_msg=None):
 
 @app.route("/question/<question_id>/")
 @app.route("/question/<question_id>/<string:messages_msg>")
-def question_detail(question_id, messages_msg=None):
+@app.route("/question/<question_id>/<string:messages_msg>?answer_id=<answer_id>")
+def question_detail(question_id, answer_id=0, messages_msg=None):
     user_id = util.get_user_id(request)
     question = data_hendler.read_question(question_id)
     answers = data_hendler.read_answers(question_id)
     tags = data_hendler.get_tags_for_question(question_id)
     comments = data_hendler.read_comments(question_id)
+    comments_to_answer = data_hendler.read_comments_to_answer(question_id, answer_id)
     response = make_response(
         render_template(
             "question_detail.html",
             question=question,
             answers=answers,
             comments=comments,
+            comments_to_answer=comments_to_answer,
             messages_msg=messages_msg,
             user_id=user_id,
             tags=tags,
@@ -496,5 +499,32 @@ def comment_edit(question_id, comment_id):
     else:
         return redirect(url_for("question_list"))
 
+@app.route("/question/<int:question_id>/answer/<answer_id>/new-comment", methods=["GET", "POST"])
+def answer_comment(question_id,answer_id):
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    if request.method == "POST":
+        errors_msg,question_id,ansver_id = data_hendler.add_comment_to_answer(request, user_id, question_id,answer_id)
+        if len(errors_msg) == 0:
+            messages_msg = messages["added_comment"]
+            return redirect(
+                url_for(
+                    "question_detail",
+                    question_id=question_id,
+                    answer_id=answer_id,
+                    messages_msg=messages_msg,
+                )
+            )
+    response = make_response(
+        render_template(
+            "add_comment.html",
+            question_id=question_id,
+            form=request.form,
+            errors_msg=errors_msg,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
 if __name__ == "__main__":
     app.run()

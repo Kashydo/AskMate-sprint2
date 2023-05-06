@@ -150,6 +150,15 @@ def read_comments(cursor,question_id):
     return cursor.fetchall()
 
 @database_common.connection_handler
+def read_comments_to_answer(cursor,question_id, answer_id):
+    query = f"""
+        SELECT id,  message, submission_time
+        FROM comments_to_answer 
+        WHERE question_id = {question_id} AND answer_id={answer_id}"""
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
 def read_comment(cursor, id):
     query = f"""
         SELECT *
@@ -517,6 +526,25 @@ def add_comment(cursor, request, user_id, question_id):
         cursor.execute(query)
 
     return errors_msg, question_id
+
+@database_common.connection_handler
+def add_comment_to_answer(cursor, request, user_id, question_id, answer_id):
+    errors_msg = []
+    comment_id = generate_id('comment')
+    submission_time = round(datetime.datetime.now().timestamp())
+    message = request.form.get("message")
+    edited_count=0
+    if len(message) == 0:
+        errors_msg.append(errors["empty_message"])
+
+    if len(errors_msg) == 0:
+        query = f"""
+            INSERT INTO comments_to_answer(id,question_id,answer_id, message, submission_time, edited_count, user_id)
+            VALUES ({comment_id},{question_id},{answer_id}, '{message}', to_timestamp({submission_time}) , '{edited_count}', '{user_id}')
+            RETURNING id"""
+        cursor.execute(query)
+
+    return errors_msg, question_id,answer_id
 
 @database_common.connection_handler
 def delete_comment(cursor, comment_id, user_id):
