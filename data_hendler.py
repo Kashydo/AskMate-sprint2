@@ -318,12 +318,11 @@ def edit_question(cursor, question_id, title, message, image):
 @database_common.connection_handler
 def edit_answer(cursor, answer_id, message, image):
     submission_time = round(datetime.datetime.now().timestamp())
-    query = """
+    query = f"""
     UPDATE answers
-    SET message = %s,
-    image = %s,
-    submission_time=%s
-    WHERE id = %s
+    SET message = "{message}",
+    image = "{image}"
+    WHERE id = {answer_id}
     """
     if image:
         image_bytes = BytesIO()
@@ -335,11 +334,10 @@ def edit_answer(cursor, answer_id, message, image):
 @database_common.connection_handler
 def edit_comment(cursor, answer_id, message):
     submision_time = round(datetime.datetime.now().timestamp())
-    query = """
+    query = f"""
     UPDATE comment
-    SET message = %s,
-    submission_time=to_timestamp(%s)
-    WHERE id = %s
+    SET message = "{message}"
+    WHERE id = {answer_id}
     """
     cursor.execute(query, (message, submision_time, answer_id))
 
