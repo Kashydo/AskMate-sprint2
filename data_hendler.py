@@ -306,12 +306,12 @@ def delete_question(cursor, question_id, user_id):
 
 @database_common.connection_handler
 def edit_question(cursor, question_id, title, message, image):
-    query = """
+    query = f"""
     UPDATE questions
-    SET title = %s,
-    message = %s,
-    image = %s
-    WHERE question_id = %s
+    SET title = "{title}",
+    message = "{message}",
+    image = "{image}"
+    WHERE question_id = {question_id}
     """
     cursor.execute(query, (title, message, image, question_id))
 
