@@ -1,6 +1,7 @@
 import csv
 import os
 import datetime
+from io import BytesIO
 
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
@@ -147,6 +148,15 @@ def read_comments(cursor,question_id):
         WHERE question_id = {question_id}"""
     cursor.execute(query)
     return cursor.fetchall()
+
+@database_common.connection_handler
+def read_comment(cursor, id):
+    query = f"""
+        SELECT *
+        FROM comment
+        WHERE id = {id}"""
+    cursor.execute(query)
+    return cursor.fetchone()
 
 @database_common.connection_handler
 def add_question(cursor, request, user_id):
@@ -296,6 +306,33 @@ def edit_question(cursor, question_id, title, message, image):
     """
     cursor.execute(query, (title, message, image, question_id))
 
+@database_common.connection_handler
+def edit_answer(cursor, answer_id, message, image):
+    submission_time = round(datetime.datetime.now().timestamp())
+    query = """
+    UPDATE answers
+    SET message = %s,
+    image = %s,
+    submission_time=%s
+    WHERE id = %s
+    """
+    if image:
+        image_bytes = BytesIO()
+        image.save(image_bytes, format='PNG')
+        cursor.execute(query, (message, image_bytes.getvalue(), submission_time, answer_id))
+    else:
+        cursor.execute(query, (message, None, submission_time, answer_id))
+
+@database_common.connection_handler
+def edit_comment(cursor, answer_id, message):
+    submision_time = round(datetime.datetime.now().timestamp())
+    query = """
+    UPDATE comment
+    SET message = %s,
+    submission_time=to_timestamp(%s)
+    WHERE id = %s
+    """
+    cursor.execute(query, (message, submision_time, answer_id))
 
 @database_common.connection_handler
 def delete_answer(cursor, answer_id, user_id):

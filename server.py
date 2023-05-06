@@ -404,5 +404,97 @@ def delete_comments(question_id, comment_id):
         response.set_cookie("user_id", user_id)
     return response
 
+@app.route("/question/<question_id>/answer/<answer_id>/edit", methods=["GET", "POST"])
+def answer_edit(question_id, answer_id):
+    user_id = util.get_user_id(request)
+    answer = data_hendler.read_answer(answer_id)
+    question = data_hendler.read_question(question_id)
+    errors_msg = []
+    if request.method == "POST":
+        if answer:
+            message = str(request.form.get("message"))
+            imagename = question["image"]
+            if len(message) == 0:
+                errors_msg.append(errors["empty_message"])
+            if "image" in request.files:
+                image = request.files["image"]
+                if image.filename != "":
+                    if not util.is_allowed_file_extension(image.filename):
+                        errors_msg.append(errors["wrong_file_extension"])
+                    else:
+                        imagename = (
+                            IMAGES_FOLDER
+                            + str(answer_id)
+                            + "."
+                            + util.get_file_extension(image.filename)
+                        )
+                        image.save(imagename)
+
+            if len(errors_msg) == 0:
+                data_hendler.edit_answer(answer_id, message, image)
+                messages_msg = messages["edited_question"]
+                return redirect(
+                    url_for(
+                        "question_detail",
+                        question_id=question_id,
+                        messages_msg=messages_msg,
+                    )
+                )
+
+    if answer:
+        response = make_response(
+            render_template(
+                "answer_edit.html",
+                answer=answer,
+                question=question,
+                form=request.form,
+                errors_msg=errors_msg,
+            )
+        )
+        if not request.cookies.get("userID"):
+            response.set_cookie("user_id", user_id)
+        return response
+    else:
+        return redirect(url_for("question_list"))
+
+@app.route("/question/<question_id>/comment/<comment_id>/edit", methods=["GET", "POST"])
+def comment_edit(question_id, comment_id):
+    user_id = util.get_user_id(request)
+    comment = data_hendler.read_comment(comment_id)
+    question = data_hendler.read_question(question_id)
+    errors_msg = []
+    if request.method == "POST":
+        if comment:
+            message = str(request.form.get("message"))
+            if len(message) == 0:
+                errors_msg.append(errors["empty_message"])
+
+            if len(errors_msg) == 0:
+                data_hendler.edit_comment(comment_id, message)
+                messages_msg = messages["edited_question"]
+                return redirect(
+                    url_for(
+                        "question_detail",
+                        question_id=question_id,
+                        messages_msg=messages_msg,
+                    )
+                )
+
+    if comment:
+        response = make_response(
+            render_template(
+                "comment_edit.html",
+                comment=comment,
+                question=question,
+                form=request.form,
+                errors_msg=errors_msg,
+            )
+        )
+        if not request.cookies.get("userID"):
+            response.set_cookie("user_id", user_id)
+        return response
+    else:
+        return redirect(url_for("question_list"))
+
 if __name__ == "__main__":
     app.run()
