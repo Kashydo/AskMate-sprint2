@@ -2,8 +2,8 @@ import os
 import datetime
 from io import BytesIO
 
-from psycopg2 import sql
-from psycopg2.extras import RealDictCursor
+import psycopg2
+import psycopg2.extras
 
 import util
 import database_common
@@ -28,11 +28,13 @@ def generate_id(cursor, table_name):
 @database_common.connection_handler
 def add_vote(cursor, id, table):
     query = """
-        UPDATE %s
+        UPDATE {}
         SET vote_number = vote_number + 1
         WHERE id = %s
-        """
-    cursor.execute(query, (table, id))
+        """.format(
+        table
+    )
+    cursor.execute(query, (id,))
 
 
 def get_order_string(order_by, order_direction):
@@ -55,9 +57,10 @@ def read_questions(cursor, order_by=None, order_direction=None):
     order_string = get_order_string(order_by, order_direction)
     query = """
         SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
-        FROM questions
-        %s"""
-    cursor.execute(query, (order_string,))
+        FROM questions"""
+    if order_string:
+        query += f"\n{order_string}"
+    cursor.execute(query)
     return cursor.fetchall()
 
 
