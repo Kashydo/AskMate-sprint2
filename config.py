@@ -1,8 +1,3 @@
-PSQL_USER_NAME = "codecool"
-PSQL_PASSWORD = "8peK7kMg3T"
-PSQL_HOST = "188.68.231.145"
-PSQL_DB_NAME = "ask_mate"
-
 QUESTION_HEADER = [
     "id",
     "submission_time",
@@ -11,7 +6,7 @@ QUESTION_HEADER = [
     "title",
     "message",
     "image",
-    "user_id"
+    "user_id",
 ]
 ANSWER_HEADER = [
     "id",
@@ -20,7 +15,7 @@ ANSWER_HEADER = [
     "question_id",
     "message",
     "image",
-    "user_id"
+    "user_id",
 ]
 ID = 0
 SUBMISSION_TIME = 1

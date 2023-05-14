@@ -1,4 +1,3 @@
-import csv
 import os
 import datetime
 from io import BytesIO
@@ -15,60 +14,25 @@ from messages import *
 
 @database_common.connection_handler
 def generate_id(cursor, table_name):
-    query = f"""
+    query = """
 
         SELECT id
-        FROM {table_name}
+        FROM %s
         ORDER BY submission_time DESC 
         LIMIT 1"""
-    cursor.execute(query)
+    cursor.execute(query, (table_name,))
     result = cursor.fetchone()
-    return result['id'] + 1 if result else 1
-
-@database_common.connection_handler
-def addquestion(cursor, new_question: dict):
-    query = f"""
-    INSERT INTO question(
-	submission_time, view_number, vote_number, title, message, image,user_id)
-	VALUES ('{new_question['submission_time']}','{new_question['view_number']}','{new_question['vote_number']}','{new_question['title']}','{new_question['message']}','{new_question['image']}','{new_question['user_id']}')
-    """
-    cursor.execute(query)
+    return result["id"] + 1 if result else 1
 
 
 @database_common.connection_handler
-def addanswer(cursor, new_answer: dict):
-    query = f"""
-    INSERT INTO answer(
-	submission_time, vote_number,question_id, message, image,user_id)
-	VALUES ('{new_answer['submission_time']}','{new_answer['vote_number']}','{new_answer['question_id']}','{new_answer['message']}','{new_answer['image']}','{new_answer['user_id']}')
-    """
-    cursor.execute(query)
-
-
-def find_data_in_list(data, list, key):
-    return_list = []
-    for e in list:
-        if str(data) == e[key]:
-            return_list.append(e)
-    return return_list
-
-
-def remove_data_from_list(list, data, key):
-    return_list = []
-    for e in list:
-        if str(data) != e[key]:
-            return_list.append(e)
-    return return_list
-
-
-@database_common.connection_handler
-def add_vote(cursor, id, database):
-    query = f"""
-        UPDATE {database}
+def add_vote(cursor, id, table):
+    query = """
+        UPDATE %s
         SET vote_number = vote_number + 1
-        WHERE id = {id}
+        WHERE id = %s
         """
-    cursor.execute(query)
+    cursor.execute(query, (table, id))
 
 
 def get_order_string(order_by, order_direction):
@@ -89,17 +53,17 @@ def get_order_string(order_by, order_direction):
 @database_common.connection_handler
 def read_questions(cursor, order_by=None, order_direction=None):
     order_string = get_order_string(order_by, order_direction)
-    query = f"""
+    query = """
         SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
         FROM questions
-        {order_string}"""
-    cursor.execute(query)
+        %s"""
+    cursor.execute(query, (order_string,))
     return cursor.fetchall()
 
 
 @database_common.connection_handler
 def get_5_latest_questions(cursor):
-    query = f"""
+    query = """
     SELECT *
     FROM questions
     ORDER BY submission_time desc
@@ -111,61 +75,65 @@ def get_5_latest_questions(cursor):
 
 @database_common.connection_handler
 def read_question(cursor, id):
-    query = f"""
+    query = """
         SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
         FROM questions
-        WHERE id = {id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (id,))
     return cursor.fetchone()
 
 
 @database_common.connection_handler
 def read_answers(cursor, question_id, order_by=None, order_direction=None):
     order_string = get_order_string(order_by, order_direction)
-    query = f"""
+    query = """
         SELECT id, submission_time, vote_number, message, image, user_id
         FROM answers
-        WHERE question_id = {question_id}
-        {order_string}"""
-    cursor.execute(query)
+        WHERE question_id = %s
+        %s"""
+    cursor.execute(query, (question_id, order_string))
     return cursor.fetchall()
 
 
 @database_common.connection_handler
 def read_answer(cursor, id):
-    query = f"""
+    query = """
         SELECT *
         FROM answers
-        WHERE id = {id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (id,))
     return cursor.fetchone()
 
-@database_common.connection_handler
-def read_comments(cursor,question_id):
-    query = f"""
-        SELECT id,  message, submission_time
-        FROM comment 
-        WHERE question_id = {question_id}"""
-    cursor.execute(query)
-    return cursor.fetchall()
 
 @database_common.connection_handler
-def read_comments_to_answer(cursor,question_id, answer_id):
-    query = f"""
+def read_comments(cursor, question_id):
+    query = """
+        SELECT id,  message, submission_time
+        FROM comment 
+        WHERE question_id =%s"""
+    cursor.execute(query, (question_id,))
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def read_comments_to_answer(cursor, question_id, answer_id):
+    query = """
         SELECT id,  message, submission_time
         FROM comments_to_answer 
-        WHERE question_id = {question_id} AND answer_id={answer_id}"""
-    cursor.execute(query)
+        WHERE question_id = %s AND answer_id=%s"""
+    cursor.execute(query, (question_id, answer_id))
     return cursor.fetchall()
+
 
 @database_common.connection_handler
 def read_comment(cursor, id):
-    query = f"""
+    query = """
         SELECT *
         FROM comment
-        WHERE id = {id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (id,))
     return cursor.fetchone()
+
 
 @database_common.connection_handler
 def add_question(cursor, request, user_id):
@@ -189,12 +157,14 @@ def add_question(cursor, request, user_id):
                 errors_msg.append(errors["wrong_file_extension"])
 
     if len(errors_msg) == 0:
-        query = f"""
+        query = """
             INSERT INTO questions(
             submission_time, view_number, vote_number, title, message, image, user_id)
-            VALUES ({submision_time}, {view_number}, {vote_number}, '{title}', '{message}', '', '{user_id}')
+            VALUES (%s, %s, %s, %s, %s, '', %s)
             RETURNING id"""
-        cursor.execute(query)
+        cursor.execute(
+            query, (submision_time, view_number, vote_number, title, message, user_id)
+        )
         question_id = cursor.fetchone()["id"]
 
         if imagename != "":
@@ -205,11 +175,12 @@ def add_question(cursor, request, user_id):
                 + util.get_file_extension(imagename)
             )
             image.save(imagename)
-            query = f"""
+            query = """
                 UPDATE questions
-                SET image='{imagename}'
-                WHERE id={question_id}"""
-            cursor.execute(query)
+                SET image= %s
+                WHERE id=%s
+                """
+            cursor.execute(query, (imagename, question_id))
 
     return errors_msg, question_id
 
@@ -232,12 +203,14 @@ def add_answer(cursor, request, user_id, question_id):
                 errors_msg.append(errors["wrong_file_extension"])
 
     if len(errors_msg) == 0:
-        query = f"""
+        query = """
             INSERT INTO answers(
             question_id, submission_time, vote_number, message, image, user_id)
-            VALUES ({question_id}, {submision_time}, {vote_number}, '{message}', '', '{user_id}')
+            VALUES (%s, %s, %s, %s, '', %s)
             RETURNING id"""
-        cursor.execute(query)
+        cursor.execute(
+            query, (question_id, submision_time, vote_number, message, user_id)
+        )
         answer_id = cursor.fetchone()["id"]
 
         if imagename != "":
@@ -250,11 +223,11 @@ def add_answer(cursor, request, user_id, question_id):
                 + util.get_file_extension(imagename)
             )
             image.save(imagename)
-            query = f"""
+            query = """
                 UPDATE answers
-                SET image='{imagename}'
-                WHERE id={answer_id}"""
-            cursor.execute(query)
+                SET image=%s
+                WHERE id=%s"""
+            cursor.execute(query, (imagename, answer_id))
 
     return errors_msg, question_id
 
@@ -262,39 +235,39 @@ def add_answer(cursor, request, user_id, question_id):
 @database_common.connection_handler
 def delete_question(cursor, question_id, user_id):
     errors_msg = []
-    query = f"""
+    query = """
         SELECT image, user_id
         FROM questions
-        WHERE id = {question_id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (question_id,))
     question = cursor.fetchone()
 
     if user_id == question["user_id"]:
-        query = f"""
+        query = """
             SELECT image
             FROM answers
-            WHERE question_id = {question_id}"""
-        cursor.execute(query)
+            WHERE question_id = %s"""
+        cursor.execute(query, (question_id,))
         answers = cursor.fetchall()
         for answer in answers:
             if answer["image"] != "" and answer["image"] != None:
                 os.remove(answer["image"])
 
-        query = f"""
+        query = """
             DELETE FROM answers
-            WHERE question_id = {question_id}"""
-        cursor.execute(query)
+            WHERE question_id = %s"""
+        cursor.execute(query, (question_id,))
 
-        query = f"""
+        query = """
             DELETE FROM question_tag
-            WHERE question_id = {question_id}
+            WHERE question_id = %s
         """
-        cursor.execute(query)
+        cursor.execute(query, (question_id,))
 
-        query = f"""
+        query = """
             DELETE FROM questions
-            WHERE id = {question_id}"""
-        cursor.execute(query)
+            WHERE id = %s"""
+        cursor.execute(query, (question_id,))
 
         if question["image"] != "" and question["image"] != None:
             os.remove(question["image"])
@@ -306,56 +279,63 @@ def delete_question(cursor, question_id, user_id):
 
 @database_common.connection_handler
 def edit_question(cursor, question_id, title, message, image):
-    query = f"""
+    query = """
     UPDATE questions
-    SET title = "{title}",
-    message = "{message}",
-    image = "{image}"
-    WHERE question_id = {question_id}
+    SET title = %s,
+    message = %s,
+    image = %s
+    WHERE question_id = %s
     """
     cursor.execute(query, (title, message, image, question_id))
+
 
 @database_common.connection_handler
 def edit_answer(cursor, answer_id, message, image):
     submission_time = round(datetime.datetime.now().timestamp())
-    query = f"""
+    query = """
     UPDATE answers
-    SET message = "{message}",
-    image = "{image}"
-    WHERE id = {answer_id}
+    SET message = %s,
+    image = %s,
+    submision_time = %s
+    WHERE id = %s
     """
     if image:
         image_bytes = BytesIO()
-        image.save(image_bytes, format='PNG')
-        cursor.execute(query, (message, image_bytes.getvalue(), submission_time, answer_id))
+        image.save(image_bytes, format="PNG")
+        cursor.execute(
+            query, (message, image_bytes.getvalue(), submission_time, answer_id)
+        )
     else:
         cursor.execute(query, (message, None, submission_time, answer_id))
+
 
 @database_common.connection_handler
 def edit_comment(cursor, answer_id, message):
     submision_time = round(datetime.datetime.now().timestamp())
-    query = f"""
+    query = """
     UPDATE comment
-    SET message = "{message}"
-    WHERE id = {answer_id}
+    SET message =  %s,
+    submision_time = %s
+    WHERE id =  %s
     """
     cursor.execute(query, (message, submision_time, answer_id))
+
 
 @database_common.connection_handler
 def delete_answer(cursor, answer_id, user_id):
     errors_msg = []
-    query = f"""
+    query = """
         SELECT image, user_id
         FROM answers
-        WHERE id = {answer_id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (answer_id,))
     answer = cursor.fetchone()
 
     if user_id == answer["user_id"]:
-        query = f"""
+        query = """
             DELETE FROM answers
-            WHERE id = {answer_id}"""
-        cursor.execute(query)
+            WHERE id = %s"""
+        cursor.execute(query, (answer_id,))
 
         if answer["image"] != "" and answer["image"] != None:
             os.remove(answer["image"])
@@ -367,38 +347,27 @@ def delete_answer(cursor, answer_id, user_id):
 
 @database_common.connection_handler
 def find_question(cursor, phrase):
-    query = f"""
+    query = """
     SELECT id, submission_time, view_number, vote_number, title, message, image, user_id
     FROM questions
-    WHERE title ILIKE '%{phrase}%'
+    WHERE title ILIKE %s
     OR
-    message ILIKE '%{phrase}%'
+    message ILIKE %s
     """
-    cursor.execute(query)
-    return cursor.fetchall()
-
-
-@database_common.connection_handler
-def find_answer(cursor, phrase):
-    query = f"""
-    SELECT *
-    FROM answers
-    WHERE message ILIKE '%{phrase}%'
-    """
-    cursor.execute(query)
+    cursor.execute(query, ("%" + phrase + "%", "%" + phrase + "%"))
     return cursor.fetchall()
 
 
 @database_common.connection_handler
 def find_question_and_answers(cursor, phrase):
-    query = f"""
+    query = """
     SELECT t2.question_id, t1.title, t2.id, t2.message
     FROM questions t1
     RIGHT OUTER JOIN answers t2
     ON t1.id = t2.question_id
-    WHERE  t2.message ILIKE '%{phrase}%'
+    WHERE  t2.message ILIKE %s
     """
-    cursor.execute(query)
+    cursor.execute(query, ("%" + phrase + "%",))
     return cursor.fetchall()
 
 
@@ -415,12 +384,12 @@ def get_all_tags(cursor):
 
 @database_common.connection_handler
 def get_tag_by_name(cursor, tag_name):
-    query = f"""
+    query = """
     SELECT *
     FROM tag
-    WHERE  name = '{tag_name}'
+    WHERE  name = %s
     """
-    cursor.execute(query)
+    cursor.execute(query, (tag_name,))
     tag = cursor.fetchone()
     if tag:
         return tag
@@ -430,11 +399,11 @@ def get_tag_by_name(cursor, tag_name):
 
 @database_common.connection_handler
 def add_new_tag(cursor, tag_name):
-    query = f"""
+    query = """
     INSERT INTO tag(name)
-    VALUES ('{tag_name}')
+    VALUES (%s)
     """
-    cursor.execute(query)
+    cursor.execute(query, (tag_name,))
 
 
 @database_common.connection_handler
@@ -456,51 +425,51 @@ def add_tag_to_question(cursor, question_id, request):
     query = """
         SELECT EXISTS(
             SELECT 1 FROM question_tag
-            WHERE question_id = %(question_id)s AND tag_id = %(tag_id)s
+            WHERE question_id = %s AND tag_id = %s
         );
     """
-    cursor.execute(query, {"question_id": question_id, "tag_id": tag_id})
+    cursor.execute(query, (question_id, tag_id))
     row = cursor.fetchone()
     if row is None:
         errors_msg.append("tag_exist")
     if len(errors_msg) == 0:
-        query = f"""
+        query = """
         INSERT INTO question_tag(
         question_id, tag_id)
-        VALUES ({question_id}, {tag["id"]});
+        VALUES (%s, %s);
         """
-        cursor.execute(query)
-        question_tag = cursor.lastrowid
+        cursor.execute(query, (question_id, tag["id"]))
+        question_tag = cursor.lastrowid()
     return errors_msg, question_tag
 
 
 @database_common.connection_handler
 def get_tags_for_question(cursor, question_id):
-    query = f"""
+    query = """
     SELECT *
     FROM tag
     RIGHT OUTER JOIN question_tag
     ON tag.id = question_tag.tag_id
-    WHERE question_id ={question_id}
+    WHERE question_id = %s
     """
-    cursor.execute(query)
+    cursor.execute(query, (question_id,))
     return cursor.fetchall()
 
 
 @database_common.connection_handler
 def delete_tag(cursor, question_id, tag_id, user_id):
     errors_msg = []
-    query = f"""
+    query = """
         SELECT user_id
         FROM questions
-        WHERE id = {question_id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (question_id,))
     questions = cursor.fetchone()
     if user_id == questions["user_id"]:
-        query = f"""
+        query = """
             DELETE FROM question_tag
-            WHERE question_id = {question_id} AND tag_id = {tag_id}"""
-        cursor.execute(query)
+            WHERE question_id = %s AND tag_id = %s"""
+        cursor.execute(query, (question_id, tag_id))
     else:
         errors_msg.append(errors["cant_delete"])
     return errors_msg
@@ -509,54 +478,70 @@ def delete_tag(cursor, question_id, tag_id, user_id):
 @database_common.connection_handler
 def add_comment(cursor, request, user_id, question_id):
     errors_msg = []
-    comment_id = generate_id('comment')
+    comment_id = generate_id("comment")
     submission_time = round(datetime.datetime.now().timestamp())
     message = request.form.get("message")
-    edited_count=0
+    edited_count = 0
     if len(message) == 0:
         errors_msg.append(errors["empty_message"])
 
     if len(errors_msg) == 0:
-        query = f"""
+        query = """
             INSERT INTO comment(id,question_id, message, submission_time, edited_count, user_id)
-            VALUES ({comment_id},{question_id},'{message}', to_timestamp({submission_time}) , '{edited_count}', '{user_id}')
+            VALUES (%s,%s,%s, to_timestamp(%s) , %s, %s)
             RETURNING id"""
-        cursor.execute(query)
+        cursor.execute(
+            query,
+            (comment_id, question_id, message, submission_time, edited_count, user_id),
+        )
 
     return errors_msg, question_id
+
 
 @database_common.connection_handler
 def add_comment_to_answer(cursor, request, user_id, question_id, answer_id):
     errors_msg = []
-    comment_id = generate_id('comment')
+    comment_id = generate_id("comment")
     submission_time = round(datetime.datetime.now().timestamp())
     message = request.form.get("message")
-    edited_count=0
+    edited_count = 0
     if len(message) == 0:
         errors_msg.append(errors["empty_message"])
 
     if len(errors_msg) == 0:
-        query = f"""
+        query = """
             INSERT INTO comments_to_answer(id,question_id,answer_id, message, submission_time, edited_count, user_id)
-            VALUES ({comment_id},{question_id},{answer_id}, '{message}', to_timestamp({submission_time}) , '{edited_count}', '{user_id}')
+            VALUES (%s,%s,%s, %s, to_timestamp(%s) , %s, %s)
             RETURNING id"""
-        cursor.execute(query)
+        cursor.execute(
+            query,
+            (
+                comment_id,
+                question_id,
+                answer_id,
+                message,
+                submission_time,
+                edited_count,
+                user_id,
+            ),
+        )
 
-    return errors_msg, question_id,answer_id
+    return errors_msg, question_id, answer_id
+
 
 @database_common.connection_handler
 def delete_comment(cursor, comment_id, user_id):
     errors_msg = []
-    query = f"""
+    query = """
         SELECT user_id
         FROM comment
-        WHERE id = {comment_id}"""
-    cursor.execute(query)
+        WHERE id = %s"""
+    cursor.execute(query, (comment_id,))
     comment = cursor.fetchone()
-    if user_id == comment['user_id']:
-        query = f"""
+    if user_id == comment["user_id"]:
+        query = """
             DELETE FROM comment
-            WHERE id = {comment_id}"""
-        cursor.execute(query)
+            WHERE id = %s"""
+        cursor.execute(query, (comment_id,))
 
     return errors_msg
