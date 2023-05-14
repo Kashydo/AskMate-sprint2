@@ -15,12 +15,13 @@ from messages import *
 @database_common.connection_handler
 def generate_id(cursor, table_name):
     query = """
-
         SELECT id
-        FROM %s
+        FROM {}
         ORDER BY submission_time DESC 
-        LIMIT 1"""
-    cursor.execute(query, (table_name,))
+        LIMIT 1""".format(
+        table_name
+    )
+    cursor.execute(query)
     result = cursor.fetchone()
     return result["id"] + 1 if result else 1
 
