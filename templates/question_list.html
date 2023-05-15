@@ -101,11 +101,14 @@
           <td>{{user_question['message']}}</td>
           <td>
             {% if user_question['image'] %}
-            <img src="{{user_question['image']}}" width="200" />
+            <img src="{{ user_question['image'] }}" width="200" />
             {% endif %}
           </td>
           <td>
-            <form method="GET" action="/question/{{user_question['id']}}/new-comment">
+            <form
+              method="GET"
+              action="/question/{{user_question['id']}}/new-comment"
+            >
               <input type="submit" value="Add new comment" />
             </form>
           </td>

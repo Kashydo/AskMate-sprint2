@@ -220,31 +220,31 @@ def show_post_date(timestamp):
 def question_edit(question_id):
     user_id = util.get_user_id(request)
     errors_msg = []
-    if request.method == "POST":
-        if question:
+    question = data_hendler.read_question(question_id)
+    if question:
+        if request.method == "POST":
             title = request.form.get("title")
             message = str(request.form.get("message"))
+            image = request.files.get("image")
             imagename = question["image"]
             if len(title) == 0:
                 errors_msg.append(errors["empty_title"])
             if len(message) == 0:
                 errors_msg.append(errors["empty_message"])
-            if "image" in request.files:
-                image = request.files["image"]
-                if image.filename != "":
-                    if not util.is_allowed_file_extension(image.filename):
-                        errors_msg.append(errors["wrong_file_extension"])
-                    else:
-                        imagename = (
-                            IMAGES_FOLDER
-                            + str(question_id)
-                            + "."
-                            + util.get_file_extension(image.filename)
-                        )
-                        image.save(imagename)
+            if image and image.filename != "":
+                if not util.is_allowed_file_extension(image.filename):
+                    errors_msg.append(errors["wrong_file_extension"])
+                else:
+                    imagename = (
+                        IMAGES_FOLDER
+                        + str(question_id)
+                        + "."
+                        + util.get_file_extension(image.filename)
+                    )
+                    image.save(imagename)
 
             if len(errors_msg) == 0:
-                data_hendler.edit_question(question_id, title, message, image)
+                data_hendler.edit_question(question_id, title, message, imagename)
                 messages_msg = messages["edited_question"]
                 return redirect(
                     url_for(
@@ -254,8 +254,6 @@ def question_edit(question_id):
                     )
                 )
 
-    question = data_hendler.read_question(question_id)
-    if question:
         response = make_response(
             render_template(
                 "question_edit.html",
@@ -370,7 +368,9 @@ def question_comment(question_id):
     user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
-        errors_msg,question_id = data_hendler.add_comment(request, user_id, question_id)
+        errors_msg, question_id = data_hendler.add_comment(
+            request, user_id, question_id
+        )
         if len(errors_msg) == 0:
             messages_msg = messages["added_comment"]
             return redirect(
@@ -392,6 +392,7 @@ def question_comment(question_id):
         response.set_cookie("user_id", user_id)
     return response
 
+
 @app.route("/question/<int:question_id>/comments/<int:comment_id>/delete")
 def delete_comments(question_id, comment_id):
     user_id = util.get_user_id(request)
@@ -406,6 +407,7 @@ def delete_comments(question_id, comment_id):
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response
+
 
 @app.route("/question/<question_id>/answer/<answer_id>/edit", methods=["GET", "POST"])
 def answer_edit(question_id, answer_id):
@@ -434,7 +436,7 @@ def answer_edit(question_id, answer_id):
                         image.save(imagename)
 
             if len(errors_msg) == 0:
-                data_hendler.edit_answer(answer_id, message, image)
+                data_hendler.edit_answer(answer_id, message, imagename)
                 messages_msg = messages["edited_question"]
                 return redirect(
                     url_for(
@@ -459,6 +461,7 @@ def answer_edit(question_id, answer_id):
         return response
     else:
         return redirect(url_for("question_list"))
+
 
 @app.route("/question/<question_id>/comment/<comment_id>/edit", methods=["GET", "POST"])
 def comment_edit(question_id, comment_id):
@@ -499,12 +502,18 @@ def comment_edit(question_id, comment_id):
     else:
         return redirect(url_for("question_list"))
 
-@app.route("/question/<int:question_id>/answer/<answer_id>/new-comment", methods=["GET", "POST"])
-def answer_comment(question_id,answer_id):
+
+@app.route(
+    "/question/<int:question_id>/answer/<answer_id>/new-comment",
+    methods=["GET", "POST"],
+)
+def answer_comment(question_id, answer_id):
     user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
-        errors_msg,question_id,ansver_id = data_hendler.add_comment_to_answer(request, user_id, question_id,answer_id)
+        errors_msg, question_id, ansver_id = data_hendler.add_comment_to_answer(
+            request, user_id, question_id, answer_id
+        )
         if len(errors_msg) == 0:
             messages_msg = messages["added_comment"]
             return redirect(
@@ -526,5 +535,7 @@ def answer_comment(question_id,answer_id):
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response
+
+
 if __name__ == "__main__":
     app.run()

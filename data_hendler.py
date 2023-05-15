@@ -248,29 +248,34 @@ def delete_question(cursor, question_id, user_id):
 
     if user_id == question["user_id"]:
         query = """
-            SELECT image
-            FROM answers
-            WHERE question_id = %s"""
+            DELETE FROM comments_to_answer
+            WHERE answer_id IN (
+                SELECT id
+                FROM answers
+                WHERE question_id = %s
+            )
+        """
         cursor.execute(query, (question_id,))
-        answers = cursor.fetchall()
-        for answer in answers:
-            if answer["image"] != "" and answer["image"] != None:
-                os.remove(answer["image"])
 
+        # Delete answers related to the question
         query = """
             DELETE FROM answers
-            WHERE question_id = %s"""
+            WHERE question_id = %s
+        """
         cursor.execute(query, (question_id,))
 
+        # Delete tags related to the question
         query = """
             DELETE FROM question_tag
             WHERE question_id = %s
         """
         cursor.execute(query, (question_id,))
 
+        # Delete the question itself
         query = """
             DELETE FROM questions
-            WHERE id = %s"""
+            WHERE id = %s
+        """
         cursor.execute(query, (question_id,))
 
         if question["image"] != "" and question["image"] != None:
@@ -282,35 +287,34 @@ def delete_question(cursor, question_id, user_id):
 
 
 @database_common.connection_handler
-def edit_question(cursor, question_id, title, message, image):
+def edit_question(cursor, question_id, title, message, imagename=None):
+    submission_time = round(datetime.datetime.now().timestamp())
     query = """
     UPDATE questions
     SET title = %s,
-    message = %s,
-    image = %s
-    WHERE question_id = %s
+        message = %s,
+        image = %s,
+        submission_time = %s
+    WHERE id = %s
     """
-    cursor.execute(query, (title, message, image, question_id))
+    cursor.execute(
+        query,
+        (title, message, imagename, submission_time, question_id),
+    )
 
 
 @database_common.connection_handler
-def edit_answer(cursor, answer_id, message, image):
+def edit_answer(cursor, answer_id, message, imagename=None):
     submission_time = round(datetime.datetime.now().timestamp())
     query = """
     UPDATE answers
     SET message = %s,
-    image = %s,
-    submision_time = %s
+    submission_time = %s,
+    image = %s
     WHERE id = %s
     """
-    if image:
-        image_bytes = BytesIO()
-        image.save(image_bytes, format="PNG")
-        cursor.execute(
-            query, (message, image_bytes.getvalue(), submission_time, answer_id)
-        )
-    else:
-        cursor.execute(query, (message, None, submission_time, answer_id))
+
+    cursor.execute(query, (message, submission_time, imagename, answer_id))
 
 
 @database_common.connection_handler
