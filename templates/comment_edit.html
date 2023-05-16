@@ -11,15 +11,13 @@
     <header>
       <h2>Ask Mate</h2>
       <nav>
-        <form method="GET" action="/">
-          <input type="submit" value="Return to main page" />
-        </form>
-        <form method="GET" action="/list">
-          <input type="submit" value="All questions" />
-        </form>
-        <form method="GET" action="/add-question">
-          <input type="submit" value="Ask question" />
-        </form>
+        <a class="navigation" href="{{url_for('latest_questions')}}"
+          >Return to main page</a
+        >
+        <a class="navigation" href="{{url_for('question_list')}}"
+          >All questions</a
+        >
+        <a class="navigation" href="{{url_for('question')}}">Ask question</a>
         <form method="POST" action="{{ url_for('search', q=search) }}">
           <input
             type="text"
@@ -37,7 +35,8 @@
     <h1>Edit Comment</h1>
     <form method="post" enctype="multipart/form-data">
       <label for="message">Message:</label><br />
-      <textarea id="message" name="message">{{ comment.message }}</textarea><br />
+      <textarea id="message" name="message">{{ comment.message }}</textarea
+      ><br />
       <input type="submit" value="Submit" />
     </form>
     <form method="GET" action="/question/{{question['id']}}">

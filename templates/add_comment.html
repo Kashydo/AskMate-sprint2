@@ -2,13 +2,37 @@
 <html>
   <head>
     <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='styles.css') }}"
-  />
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <title>Add comment</title>
     <meta charset="UTF-8" />
   </head>
   <body>
+    <header>
+      <h2>Ask Mate</h2>
+      <nav>
+        <a class="navigation" href="{{url_for('latest_questions')}}"
+          >Return to main page</a
+        >
+        <a class="navigation" href="{{url_for('question_list')}}"
+          >All questions</a
+        >
+        <a class="navigation" href="{{url_for('question')}}">Ask question</a>
+        <form method="POST" action="{{ url_for('search', q=search) }}">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            value="{{ search }}"
+          />
+          <button type="submit">Search</button>
+          {% if found_questions or found_answers and search %}
+          <input type="hidden" name="q" value="{{ search }}" />
+          {% endif %}
+        </form>
+      </nav>
+    </header>
     <h1>Your comment</h1>
     {% if errors_msg %}
     <div>
@@ -30,7 +54,9 @@
             cols="100"
             placeholder="Write your comment here"
             required
-          >{{form["message"]}}</textarea>
+          >
+{{form["message"]}}</textarea
+          >
         </label>
       </fieldset>
       <input type="submit" value="Submit" />
