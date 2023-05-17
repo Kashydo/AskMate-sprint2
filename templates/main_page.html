@@ -53,7 +53,11 @@
               >{{user_question['id']}}</a
             >
           </td>
-          <td>{{user_question['title']}}</td>
+          <td>
+            <a href="/question/{{user_question['id']}}"
+              >{{user_question['title']}}</a
+            >
+          </td>
           <td>{{user_question['submission_time'] | post_time}}</td>
           <td>
             {{user_question['vote_number']}} {% if user_question['user_id'] !=
@@ -65,7 +69,11 @@
             </form>
             {% endif %}
           </td>
-          <td>{{user_question['message']}}</td>
+          <td>
+            <a href="/question/{{user_question['id']}}"
+              >{{user_question['message']}}</a
+            >
+          </td>
           <td>
             {% if user_question['image'] %}
             <img src="{{ user_question['image'] }}" width="200" />

@@ -40,7 +40,6 @@ nav form {
   color: white;
 }
 
-table table,
 th,
 td {
   border: 1px solid;
@@ -49,17 +48,28 @@ td {
   padding: 8px;
 }
 
-.buttons-container {
-  display: flex;
-  justify-content: space-between;
-  max-width: 300px;
-  margin: 10px;
+td a {
+  text-decoration: none;
+  color: #151515;
 }
-.buttons-container form {
-  flex: 1;
-  margin-right: 10px;
-  margin-bottom: 30px;
-  margin-top: 10px;
+
+.buttons-container {
+  justify-content: space-evenly;
+}
+.buttons {
+  display: inline-block;
+  border: 2px solid black;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 10px;
+  text-decoration: none;
+  background-color: #151515;
+  color: white;
+}
+
+.buttons a {
+  text-decoration: none;
+  color: white;
 }
 
 .question-text {
