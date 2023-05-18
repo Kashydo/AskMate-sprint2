@@ -57,10 +57,14 @@ def question_list(messages_msg=None):
     return response
 
 
-@app.route("/question/<question_id>/")
-@app.route("/question/<question_id>/<string:messages_msg>")
-@app.route("/question/<question_id>/<string:messages_msg>?answer_id=<answer_id>")
+@app.route("/question/<int:question_id>/", methods=["GET"])
+@app.route("/question/<int:question_id>/<string:messages_msg>", methods=["GET"])
+@app.route(
+    "/question/<int:question_id>/<string:messages_msg>?answer_id=<int:answer_id>",
+    methods=["GET"],
+)
 def question_detail(question_id, answer_id=0, messages_msg=None):
+    question = data_hendler.read_question(question_id)
     user_id = util.get_user_id(request)
     question = data_hendler.read_question(question_id)
     answers = data_hendler.read_answers(question_id)
@@ -380,14 +384,15 @@ def question_comment(question_id):
                     messages_msg=messages_msg,
                 )
             )
-    response = make_response(
-        render_template(
-            "add_comment.html",
-            question_id=question_id,
-            form=request.form,
-            errors_msg=errors_msg,
+    else:
+        response = make_response(
+            render_template(
+                "add_comment.html",
+                question_id=question_id,
+                form=request.form,
+                errors_msg=errors_msg,
+            )
         )
-    )
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response
@@ -511,7 +516,7 @@ def answer_comment(question_id, answer_id):
     user_id = util.get_user_id(request)
     errors_msg = []
     if request.method == "POST":
-        errors_msg, question_id, ansver_id = data_hendler.add_comment_to_answer(
+        errors_msg, question_id, answer_id = data_hendler.add_comment_to_answer(
             request, user_id, question_id, answer_id
         )
         if len(errors_msg) == 0:

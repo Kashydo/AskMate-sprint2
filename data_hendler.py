@@ -88,14 +88,18 @@ def read_question(cursor, id):
 
 
 @database_common.connection_handler
-def read_answers(cursor, question_id, order_by=None, order_direction=None):
+def read_answers(
+    cursor, question_id, order_by=None, order_direction="ORDER BY submission_time"
+):
     order_string = get_order_string(order_by, order_direction)
     query = """
         SELECT id, submission_time, vote_number, message, image, user_id
         FROM answers
         WHERE question_id = %s
-        %s"""
-    cursor.execute(query, (question_id, order_string))
+    """
+    if order_string:
+        query += f"\n{order_string}"
+    cursor.execute(query, (question_id,))
     return cursor.fetchall()
 
 
@@ -112,7 +116,7 @@ def read_answer(cursor, id):
 @database_common.connection_handler
 def read_comments(cursor, question_id):
     query = """
-        SELECT id,  message, submission_time
+        SELECT *
         FROM comment 
         WHERE question_id =%s"""
     cursor.execute(query, (question_id,))
@@ -122,7 +126,7 @@ def read_comments(cursor, question_id):
 @database_common.connection_handler
 def read_comments_to_answer(cursor, question_id, answer_id):
     query = """
-        SELECT id,  message, submission_time
+        SELECT *
         FROM comments_to_answer 
         WHERE question_id = %s AND answer_id=%s"""
     cursor.execute(query, (question_id, answer_id))
@@ -492,7 +496,6 @@ def add_comment(cursor, request, user_id, question_id):
     edited_count = 0
     if len(message) == 0:
         errors_msg.append(errors["empty_message"])
-
     if len(errors_msg) == 0:
         query = """
             INSERT INTO comment(id,question_id, message, submission_time, edited_count, user_id)
