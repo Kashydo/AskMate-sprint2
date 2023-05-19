@@ -24,8 +24,9 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def latest_questions(messages_msg=None):
+def latest_questions():
     user_id = util.get_user_id(request)
+    messages_msg = request.args.get("messages_msg")
     questions = data_hendler.get_5_latest_questions()
     response = make_response(
         render_template(
@@ -554,7 +555,7 @@ def registration():
         errors_msg = data_hendler.add_user(request, user_id)
         if len(errors_msg) == 0:
             messages_msg = messages["added_user"]
-            return redirect(url_for("question_list"))
+            return redirect(url_for("latest_questions", messages_msg=messages_msg))
     response = make_response(
         render_template("add_user.html", form=request.form, errors_msg=errors_msg)
     )
