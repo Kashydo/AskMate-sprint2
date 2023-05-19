@@ -17,6 +17,7 @@ from messages import *
 from jinja2 import Environment
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
