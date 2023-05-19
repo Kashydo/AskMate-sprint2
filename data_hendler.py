@@ -212,7 +212,7 @@ def add_user(cursor, request, user_id):
 
     if len(errors_msg) == 0:
         query = """
-            INSERT INTO registration (username, password, subbmision_time)
+            INSERT INTO users (username, password, subbmision_time)
             VALUES (%s, %s, %s)
             """
         cursor.execute(query, (username, hashed_password, submission_time))
