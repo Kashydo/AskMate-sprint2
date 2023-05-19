@@ -43,6 +43,10 @@
         {% endfor %}
       </ol>
     </div>
+    {% endif %} {% if question %}
+    <h1>{{ question.title }}</h1>
+    <p class="question-text">{{ question.message }}</p>
+    <br />
     {% endif %}
     <form method="POST" action="" enctype="multipart/form-data">
       <fieldset>

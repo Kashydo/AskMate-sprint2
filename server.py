@@ -118,6 +118,7 @@ def question():
 @app.route("/question/<int:question_id>/new-answer", methods=["GET", "POST"])
 def answer(question_id):
     user_id = util.get_user_id(request)
+    question = data_hendler.read_question(question_id)
     errors_msg = []
     if request.method == "POST":
         errors_msg, answer_id = data_hendler.add_answer(request, user_id, question_id)
@@ -134,6 +135,7 @@ def answer(question_id):
         render_template(
             "add_answer.html",
             question_id=question_id,
+            question=question,
             form=request.form,
             errors_msg=errors_msg,
         )
@@ -224,7 +226,7 @@ def show_post_date(timestamp):
     return util.translate_timestamp(timestamp)
 
 
-@app.route("/question/<question_id>/edit", methods=["GET", "POST"])
+@app.route("/question/<int:question_id>/edit", methods=["GET", "POST"])
 def question_edit(question_id):
     user_id = util.get_user_id(request)
     errors_msg = []
@@ -250,7 +252,6 @@ def question_edit(question_id):
                         + util.get_file_extension(image.filename)
                     )
                     image.save(imagename)
-
             if len(errors_msg) == 0:
                 data_hendler.edit_question(question_id, title, message, imagename)
                 messages_msg = messages["edited_question"]
@@ -261,15 +262,15 @@ def question_edit(question_id):
                         messages_msg=messages_msg,
                     )
                 )
-
-        response = make_response(
-            render_template(
-                "question_edit.html",
-                question=question,
-                form=request.form,
-                errors_msg=errors_msg,
+        else:
+            response = make_response(
+                render_template(
+                    "question_edit.html",
+                    question=question,
+                    form=request.form,
+                    errors_msg=errors_msg,
+                )
             )
-        )
         if not request.cookies.get("userID"):
             response.set_cookie("user_id", user_id)
         return response
