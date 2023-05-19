@@ -32,19 +32,23 @@
         </form>
       </nav>
     </header>
-    <h1>Edit Question</h1>
-    <form method="post" enctype="multipart/form-data">
-      <label for="title">Title:</label><br />
-      <input
-        type="text"
-        id="title"
-        name="title"
-        value="{{ question.title }}"
-      /><br /><br />
-      <label for="message">Message:</label><br />
-      <textarea id="message" name="message" value="{{ question.title }}">
-{{ question.message }}</textarea
-      ><br /><br />
+      {% if question is not none %}
+      <h1>{{ question.title }}</h1>
+      <p class="question-text">{{ question.message  }}</p>
+      <br />
+      <h1>Edit Question</h1>
+      <form method="post" action="{{ url_for('question_edit', question_id=question['id']) }}" enctype="multipart/form-data">
+        <label for="title">Title:</label><br />
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value="{{ question.title }}"
+        /><br /><br />
+        <label for="message">Message:</label><br />
+      {%endif%}
+      <div>
+        <textarea id="message" name="message">{{ question.message }}</textarea><br /><br />
       <label for="image">Image:</label><br />
       <input type="file" id="image" name="image" /><br /><br />
       <input type="submit" value="Submit" />
@@ -52,5 +56,15 @@
     <form method="GET" action="/question/{{question['id']}}">
       <input type="submit" value="Cancel" />
     </form>
+    <footer>
+      <p>Authors:</p>
+      <ul>
+        <li>Daria Aleksandrowa</li>
+        <li>Maciej Piech</li>
+        <li>Katarzyna Bernat</li>
+        <li>Krzysztof Baran</li>
+        <li>Monika Bartkowiak</li>
+      </ul>
+    </footer>
   </body>
 </html>

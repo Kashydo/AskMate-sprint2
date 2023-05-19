@@ -33,6 +33,20 @@
       </nav>
     </header>
     <h1>Edit Answer</h1>
+    {% if question %}
+    <h2>Question</h2>
+    <h1>{{ question.title }}</h1>
+    <p class="question-text">{{ question.message }}</p>
+    <br />
+    {% endif %}{% if answer %}
+    <h2>Answer</h2>
+    <div class="answer">
+      <p>{{ answer['message'] }}</p>
+      {% if answer['image'] %}
+      <img src="/{{ answer['image'] }}" width="200" />
+      {% endif %}
+    </div>
+    {% endif %}
     <form method="post" enctype="multipart/form-data">
       <label for="message">Message:</label><br />
       <textarea id="message" name="message">{{ answer.message }}</textarea
@@ -44,5 +58,15 @@
     <form method="GET" action="/question/{{question['id']}}">
       <input type="submit" value="Cancel" />
     </form>
+    <footer>
+      <p>Authors:</p>
+      <ul>
+        <li>Daria Aleksandrowa</li>
+        <li>Maciej Piech</li>
+        <li>Katarzyna Bernat</li>
+        <li>Krzysztof Baran</li>
+        <li>Monika Bartkowiak</li>
+      </ul>
+    </footer>
   </body>
 </html>

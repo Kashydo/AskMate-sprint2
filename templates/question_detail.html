@@ -39,7 +39,9 @@
           <a href="/question/{{question['id']}}/delete">Delete question</a>
         </div>
         <div class="buttons">
-          <a href="/question/{{question['id']}}/edit">Edit question</a>
+          <a href="{{ url_for('question_edit', question_id=question['id']) }}"
+            >Edit question</a
+          >
         </div>
         <div class="buttons">
           <a href="{{ url_for('add_tag', question_id=question['id']) }}"
@@ -173,5 +175,15 @@
         {% endif %}
       </div>
     </main>
+    <footer>
+      <p>Authors:</p>
+      <ul>
+        <li>Daria Aleksandrowa</li>
+        <li>Maciej Piech</li>
+        <li>Katarzyna Bernat</li>
+        <li>Krzysztof Baran</li>
+        <li>Monika Bartkowiak</li>
+      </ul>
+    </footer>
   </body>
 </html>

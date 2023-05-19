@@ -43,6 +43,10 @@
         {% endfor %}
       </ol>
     </div>
+    {% endif %} {% if question %}
+    <h1>{{ question.title }}</h1>
+    <p class="question-text">{{ question.message }}</p>
+    <br />
     {% endif %}
     <form method="POST" action="" enctype="multipart/form-data">
       <fieldset>
@@ -67,5 +71,15 @@
       </fieldset>
       <input type="submit" value="Submit" />
     </form>
+    <footer>
+      <p>Authors:</p>
+      <ul>
+        <li>Daria Aleksandrowa</li>
+        <li>Maciej Piech</li>
+        <li>Katarzyna Bernat</li>
+        <li>Krzysztof Baran</li>
+        <li>Monika Bartkowiak</li>
+      </ul>
+    </footer>
   </body>
 </html>

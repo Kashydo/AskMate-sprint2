@@ -36,8 +36,9 @@
       <h1>Search result for {{search}}</h1>
       {% if messages_msg %}
       <div>{{messages_msg}}</div>
-      {% endif %} {%for user_question in found_questions %}
-      <article>
+      {% endif %} {% if found_question|length > 0 or found_answers|length > 0%}
+      {%for user_question in found_questions %}
+      <div>
         <p>
           Title:
           <a href="/question/{{user_question['id']}}"
@@ -46,13 +47,7 @@
         </p>
         <p>Submision time: {{user_question['submission_time'] | post_time}}</p>
         <p>{{ user_question['message']|highlight(search)|safe }}</p>
-        {%for user_answer in found_answers %} {%if user_question['id'] ==
-        user_answer['question_id']%}
-        <p style="margin-left: 40px">
-          {{ user_answer['message']|highlight(search)|safe }}
-        </p>
-        {%endif%} {%endfor%}
-      </article>
+      </div>
       {%endfor%} {%for user_answer in found_answers %}
       <article>
         {% if user_answer['question_id'] not in found_questions['id'] %}
@@ -68,7 +63,19 @@
         </p>
         {%endif%}
       </article>
-      {%endfor%}
+      {%endfor%} {%else%}
+      <p>No result found</p>
+      {%endif%}
     </main>
+    <footer>
+      <p>Authors:</p>
+      <ul>
+        <li>Daria Aleksandrowa</li>
+        <li>Maciej Piech</li>
+        <li>Katarzyna Bernat</li>
+        <li>Krzysztof Baran</li>
+        <li>Monika Bartkowiak</li>
+      </ul>
+    </footer>
   </body>
 </html>

@@ -348,14 +348,14 @@ def edit_answer(cursor, answer_id, message, imagename=None):
 
 @database_common.connection_handler
 def edit_comment(cursor, answer_id, message):
-    submision_time = datetime.datetime.fromtimestamp(round(datetime.datetime.now().timestamp()))
+    submision_time = round(datetime.datetime.now().timestamp())
     query = """
     UPDATE comment
     SET message =  %s,
     submission_time = %s
     WHERE id =  %s
     """
-    cursor.execute(query, (message, submision_time, answer_id))
+    cursor.execute(query, (message, submission_time, answer_id))
 
 
 @database_common.connection_handler
