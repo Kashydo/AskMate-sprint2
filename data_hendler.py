@@ -197,11 +197,14 @@ def add_question(cursor, request, user_id):
 @database_common.connection_handler
 def add_user(cursor, request, user_id):
     errors_msg = []
-    submision_time = datetime.datetime.now().timestamp()
+    submission_time = datetime.datetime.fromtimestamp(
+        round(datetime.datetime.now().timestamp())
+    )
     username = request.form.get("username")
     password = request.form.get("password")
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
+
     if len(username) == 0:
         errors_msg.append(errors["empty_username"])
     if len(hashed_password) == 0:
@@ -209,12 +212,11 @@ def add_user(cursor, request, user_id):
 
     if len(errors_msg) == 0:
         query = """
-            INSERT INTO users(
-            submission_time, username, password,)
+            INSERT INTO registration (username, password, subbmision_time)
             VALUES (%s, %s, %s)
-        cursor.execute(
-            query, (submision_time, username, hashed_password)
-        )"""
+            """
+        cursor.execute(query, (username, hashed_password, submission_time))
+
     return errors_msg
 
 
@@ -317,7 +319,9 @@ def delete_question(cursor, question_id, user_id):
 
 @database_common.connection_handler
 def edit_question(cursor, question_id, title, message, imagename=None):
-    submission_time = datetime.datetime.fromtimestamp(round(datetime.datetime.now().timestamp()))
+    submission_time = datetime.datetime.fromtimestamp(
+        round(datetime.datetime.now().timestamp())
+    )
     query = """
     UPDATE questions
     SET title = %s,
@@ -334,7 +338,9 @@ def edit_question(cursor, question_id, title, message, imagename=None):
 
 @database_common.connection_handler
 def edit_answer(cursor, answer_id, message, imagename=None):
-    submission_time = datetime.datetime.fromtimestamp(round(datetime.datetime.now().timestamp()))
+    submission_time = datetime.datetime.fromtimestamp(
+        round(datetime.datetime.now().timestamp())
+    )
     query = """
     UPDATE answers
     SET message = %s,
@@ -355,7 +361,7 @@ def edit_comment(cursor, answer_id, message):
     submission_time = %s
     WHERE id =  %s
     """
-    cursor.execute(query, (message, submission_time, answer_id))
+    cursor.execute(query, (message, submision_time, answer_id))
 
 
 @database_common.connection_handler
