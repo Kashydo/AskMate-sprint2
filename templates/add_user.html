@@ -31,27 +31,24 @@
       </ol>
     </div>
     {% endif %}
-    <form method="POST" action="/registration" enctype="multipart/form-data">
+    <form method="POST" action="/registration">
       <fieldset>
-        <label for="message">
-          <textarea
-            id="username"
+        <label for="username">
+          <input
+            type="text"
             name="username"
-            rows="2"
-            cols="100"
             placeholder="Write your username here"
-            required>{{form["message"]}}</textarea>
+            value="{{ username }}"
+          />
         </label>
         <p>
-        <label for="message">
-            <textarea
-                id="password"
-                name="password"
-                rows="2"
-                cols="100"
-                placeholder="Write your password here"
-                required>{{form["message"]}}</textarea>
-            </label>
+        <label for="password">
+          <input
+            type="password"
+            name="password"
+            placeholder="Write your password here"
+          />
+        </label>
         </p>
       </fieldset>
       <input type="submit" value="Submit" />
