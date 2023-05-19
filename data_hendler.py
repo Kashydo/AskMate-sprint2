@@ -207,7 +207,16 @@ def add_user(cursor, request, user_id):
 
     if len(username) == 0:
         errors_msg.append(errors["empty_username"])
-    if len(hashed_password) == 0:
+
+    query = f"""
+        SELECT count(id) as username_exists FROM users WHERE username = '{username}'
+    """
+    cursor.execute(query)
+    username_exists = cursor.fetchone()["username_exists"]
+    if username_exists > 0:
+        errors_msg.append(errors["username_exists"])
+
+    if len(password) == 0:
         errors_msg.append(errors["empty_password"])
 
     if len(errors_msg) == 0:

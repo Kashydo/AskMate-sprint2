@@ -6,4 +6,5 @@ errors = {
 "cant_delete": "You can't delete this",
 "empty_username": "Add username",
 "empty_password": "Add password",
+"username_exists": "Username already exists",
 }
