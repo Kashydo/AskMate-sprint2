@@ -1,6 +1,7 @@
 import os
 import datetime
 from io import BytesIO
+import bcrypt
 
 import psycopg2
 import psycopg2.extras
@@ -194,6 +195,30 @@ def add_question(cursor, request, user_id):
 
 
 @database_common.connection_handler
+def add_user(cursor, request, user_id):
+    errors_msg = []
+    submision_time = datetime.datetime.now().timestamp()
+    username = request.form.get("username")
+    password = request.form.get("password")
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    if len(username) == 0:
+        errors_msg.append(errors["empty_username"])
+    if len(hashed_password) == 0:
+        errors_msg.append(errors["empty_password"])
+
+    if len(errors_msg) == 0:
+        query = """
+            INSERT INTO users(
+            submission_time, username, password,)
+            VALUES (%s, %s, %s)
+        cursor.execute(
+            query, (submision_time, username, hashed_password)
+        )"""
+    return errors_msg
+
+
+@database_common.connection_handler
 def add_answer(cursor, request, user_id, question_id):
     errors_msg = []
     answer_id = 0
@@ -292,7 +317,7 @@ def delete_question(cursor, question_id, user_id):
 
 @database_common.connection_handler
 def edit_question(cursor, question_id, title, message, imagename=None):
-    submission_time = round(datetime.datetime.now().timestamp())
+    submission_time = datetime.datetime.fromtimestamp(round(datetime.datetime.now().timestamp()))
     query = """
     UPDATE questions
     SET title = %s,
@@ -309,7 +334,7 @@ def edit_question(cursor, question_id, title, message, imagename=None):
 
 @database_common.connection_handler
 def edit_answer(cursor, answer_id, message, imagename=None):
-    submission_time = round(datetime.datetime.now().timestamp())
+    submission_time = datetime.datetime.fromtimestamp(round(datetime.datetime.now().timestamp()))
     query = """
     UPDATE answers
     SET message = %s,
@@ -323,11 +348,11 @@ def edit_answer(cursor, answer_id, message, imagename=None):
 
 @database_common.connection_handler
 def edit_comment(cursor, answer_id, message):
-    submision_time = round(datetime.datetime.now().timestamp())
+    submision_time = datetime.datetime.fromtimestamp(round(datetime.datetime.now().timestamp()))
     query = """
     UPDATE comment
     SET message =  %s,
-    submision_time = %s
+    submission_time = %s
     WHERE id =  %s
     """
     cursor.execute(query, (message, submision_time, answer_id))
@@ -451,7 +476,7 @@ def add_tag_to_question(cursor, question_id, request):
         VALUES (%s, %s);
         """
         cursor.execute(query, (question_id, tag["id"]))
-        question_tag = cursor.lastrowid()
+        question_tag = cursor.lastrowid
     return errors_msg, question_tag
 
 

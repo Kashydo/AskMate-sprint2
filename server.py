@@ -544,6 +544,22 @@ def answer_comment(question_id, answer_id):
         response.set_cookie("user_id", user_id)
     return response
 
+@app.route("/registration", methods=["GET", "POST"])
+def registration():
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    if request.method == "POST":
+        errors_msg = data_hendler.add_user(request, user_id)
+        if len(errors_msg) == 0:
+            messages_msg = messages["added_user"]
+            return redirect(url_for("question_list"))
+    response = make_response(
+        render_template("add_user.html", form=request.form, errors_msg=errors_msg)
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
 
 if __name__ == "__main__":
     app.run()

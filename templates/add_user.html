@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <title>Add user</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <header>
+      <h2>Ask Mate</h2>
+    <nav>
+        <a class="navigation" href="{{url_for('latest_questions')}}"
+          >Return to main page</a
+        >
+        <a class="navigation" href="{{url_for('question_list')}}"
+          >All questions</a
+        >
+    </nav>
+    </header>
+    <h1>Registration</h1>
+    {% if errors_msg %}
+    <div>
+      <h3>Errors</h3>
+      <ol>
+        {% for error in errors_msg %}
+        <li>{{error}}</li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
+    <form method="POST" action="/registration" enctype="multipart/form-data">
+      <fieldset>
+        <label for="message">
+          <textarea
+            id="username"
+            name="username"
+            rows="2"
+            cols="100"
+            placeholder="Write your username here"
+            required>{{form["message"]}}</textarea>
+        </label>
+        <p>
+        <label for="message">
+            <textarea
+                id="password"
+                name="password"
+                rows="2"
+                cols="100"
+                placeholder="Write your password here"
+                required>{{form["message"]}}</textarea>
+            </label>
+        </p>
+      </fieldset>
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+</html>
