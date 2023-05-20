@@ -210,10 +210,11 @@ def add_user(cursor, request, user_id):
     if len(username) == 0:
         errors_msg.append(errors["empty_username"])
 
-    query = f"""
-        SELECT count(id) as username_exists FROM users WHERE username = '{username}'
+    query = """
+        SELECT count(id) as username_exists FROM users WHERE username = %s
     """
-    cursor.execute(query)
+
+    cursor.execute(query, (username,))
     username_exists = cursor.fetchone()["username_exists"]
     if username_exists > 0:
         errors_msg.append(errors["username_exists"])
@@ -243,10 +244,10 @@ def login(cursor, request):
     if len(password) == 0:
         errors_msg.append(errors["empty_password"])
 
-    query = f"""
-        SELECT id, username, password FROM users WHERE username = '{username}'
+    query = """
+        SELECT id, username, password FROM users WHERE username = %s
     """
-    cursor.execute(query)
+    cursor.execute(query, (username,))
     user = cursor.fetchone()
     if user:
         if not bcrypt.checkpw(password.encode("utf-8"), bytes.fromhex(user["password"])):
