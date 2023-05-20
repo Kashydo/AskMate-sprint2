@@ -11,13 +11,11 @@
     <header>
       <h2>Ask Mate</h2>
       <nav>
-        <a class="navigation" href="{{url_for('latest_questions')}}"
-          >Return to main page</a
-        >
-        <a class="navigation" href="{{url_for('question_list')}}"
-          >All questions</a
-        >
+
+        <a class="navigation" href="{{url_for('latest_questions')}}">Home</a>
+        <a class="navigation" href="{{url_for('question_list')}}">All questions</a>
         <a class="navigation" href="{{url_for('question')}}">Ask question</a>
+
         <form method="POST" action="{{ url_for('search', q=search) }}">
           <input
             type="text"
@@ -30,6 +28,15 @@
           <input type="hidden" name="q" value="{{ search }}" />
           {% endif %}
         </form>
+
+        {% if session["userid"] %}
+        <span class="login">Hello {{session["username"]}}!</span>
+        <a class="navigation" href="{{url_for('logout')}}">Logout</a>
+        {% else %}
+        <a class="navigation" href="{{url_for('registration')}}">Registration</a>
+        <a class="navigation" href="{{url_for('login')}}">Login</a>
+        {% endif %}
+
       </nav>
     </header>
     <main>
