@@ -16,6 +16,7 @@
           >All questions</a
         >
         <a class="navigation" href="{{url_for('question')}}">Ask question</a>
+        <a class="navigation" href="{{url_for('users_list')}}">All users</a>
 
         <form method="POST" action="{{ url_for('search', q=search) }}">
           <input

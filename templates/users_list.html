@@ -5,20 +5,19 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
     />
-    <title>Add Tag</title>
-    <meta charset="UTF-8" />
+    <title>Ask Mate</title>
   </head>
   <body>
     <header>
       <h2>Ask Mate</h2>
       <nav>
-        <a class="navigation" href="{{url_for('latest_questions')}}">Home</a>
+        <a class="navigation" href="{{url_for('latest_questions')}}"
+          >Return to main page</a
+        >
         <a class="navigation" href="{{url_for('question_list')}}"
           >All questions</a
         >
-        <a class="navigation" href="{{url_for('users_list')}}">All users</a>
         <a class="navigation" href="{{url_for('question')}}">Ask question</a>
-
         <form method="POST" action="{{ url_for('search', q=search) }}">
           <input
             type="text"
@@ -31,54 +30,36 @@
           <input type="hidden" name="q" value="{{ search }}" />
           {% endif %}
         </form>
-
         {% if session["userid"] %}
         <span class="login">Hello {{session["username"]}}!</span>
-        <a
-          class="navigation"
-          href="{{ url_for('user_profile', username=session['username']) }}"
-          >Profile</a
-        >
         <a class="navigation" href="{{url_for('logout')}}">Logout</a>
         {% else %}
-        <a class="navigation" href="{{url_for('registration')}}"
-          >Registration</a
-        >
+        <a class="navigation" href="{{url_for('registration')}}">Registration</a>
         <a class="navigation" href="{{url_for('login')}}">Login</a>
         {% endif %}
       </nav>
     </header>
+    <main>
+      <h1>Users</h1>
+      <fieldset>
+        <table>
+          <tr>
+          <th>User Name</th>
+          <th>Submission time</th>
+          </tr>
+          {%for user in users %}
+          <tr>
+          <td>{{user['username']}}</td>
+          <td>{{user['submission_time']}}</td>
+          </tr>
+          {%endfor%}
+        </table>
+      </fieldset>
+      {% if messages_msg %}
+      <div>{{messages_msg}}</div>
+      {% endif %}
 
-    <h1>Add Tag to Question</h1>
-    {% if errors_msg %}
-    <div>
-      <h3>Errors</h3>
-      <ol>
-        {% for error in errors_msg %}
-        <li>{{error}}</li>
-        {% endfor %}
-      </ol>
-    </div>
-    {% endif %}
-
-    <form
-      method="POST"
-      action="{{ url_for('add_tag', question_id=question_id) }}"
-    >
-      <label for="tag_name">Tag Name:</label>
-      <input type="text" name="tag_name" id="tag_name"
-      value="{{form["tag_name"]}}" />
-
-      <label for="existing_tags">Or select an existing tag:</label>
-      <select name="existing_tag" id="existing_tags">
-        <option value="">-- Select Tag --</option>
-        {% for tag in all_tags %}
-        <option value="{{ tag['name']}}">{{ tag['name'] }}</option>
-        {% endfor %}
-      </select>
-
-      <button type="submit">Add Tag</button>
-    </form>
+    </main>
     <footer>
       <p>Authors:</p>
       <ul>
