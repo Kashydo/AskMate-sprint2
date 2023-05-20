@@ -12,4 +12,5 @@ messages = {
     "cant_vote": "You can't vote for this",
     "added_tag": "Tag has been added",
     "added_user": "User has been added",
+    "login": "Login success",
 }

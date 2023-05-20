@@ -1,3 +1,5 @@
+from flask import session
+
 import os
 import datetime
 from io import BytesIO
@@ -203,7 +205,7 @@ def add_user(cursor, request, user_id):
     username = request.form.get("username")
     password = request.form.get("password")
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt).hex()
 
     if len(username) == 0:
         errors_msg.append(errors["empty_username"])
@@ -225,6 +227,36 @@ def add_user(cursor, request, user_id):
             VALUES (%s, %s, %s)
             """
         cursor.execute(query, (username, hashed_password, submission_time))
+
+    return errors_msg
+
+
+@database_common.connection_handler
+def login(cursor, request):
+    errors_msg = []
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    if len(username) == 0:
+        errors_msg.append(errors["empty_username"])
+
+    if len(password) == 0:
+        errors_msg.append(errors["empty_password"])
+
+    query = f"""
+        SELECT id, username, password FROM users WHERE username = '{username}'
+    """
+    cursor.execute(query)
+    user = cursor.fetchone()
+    if user:
+        if not bcrypt.checkpw(password.encode("utf-8"), bytes.fromhex(user["password"])):
+            errors_msg.append(errors["login"])
+    elif username:
+        errors_msg.append(errors["login"])
+
+    if len(errors_msg) == 0:
+        session["userid"] = user["id"]
+        session["username"] = user["username"]
 
     return errors_msg
 

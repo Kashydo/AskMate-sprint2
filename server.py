@@ -5,6 +5,7 @@ from flask import (
     redirect,
     url_for,
     make_response,
+    session
 )
 import util
 import datetime
@@ -21,7 +22,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-
+app.secret_key = "6ntK8uHv2W"
 
 @app.route("/")
 def latest_questions():
@@ -35,6 +36,7 @@ def latest_questions():
             user_questions=questions,
             messages_msg=messages_msg,
             user_id=user_id,
+            session=session,
         )
     )
     if not request.cookies.get("userID"):
@@ -547,6 +549,7 @@ def answer_comment(question_id, answer_id):
         response.set_cookie("user_id", user_id)
     return response
 
+
 @app.route("/registration", methods=["GET", "POST"])
 def registration():
     user_id = util.get_user_id(request)
@@ -562,6 +565,31 @@ def registration():
     if not request.cookies.get("userID"):
         response.set_cookie("user_id", user_id)
     return response
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    if request.method == "POST":
+        errors_msg = data_hendler.login(request)
+        if len(errors_msg) == 0:
+            messages_msg = messages["login"]
+            return redirect(url_for("latest_questions", messages_msg=messages_msg))
+    response = make_response(
+        render_template("login.html", form=request.form, errors_msg=errors_msg)
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
+
+
+@app.route("/logout")
+def logout():
+    user_id = util.get_user_id(request)
+    session.pop("userid")
+    session.pop("username")
+    return redirect(url_for("latest_questions"))
 
 
 if __name__ == "__main__":

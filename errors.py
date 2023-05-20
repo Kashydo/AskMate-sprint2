@@ -7,4 +7,5 @@ errors = {
 "empty_username": "Add username",
 "empty_password": "Add password",
 "username_exists": "Username already exists",
+"login": "Wrong username or password",
 }
