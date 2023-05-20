@@ -1,3 +1,5 @@
+from flask import session
+
 import datetime
 import csv
 import os.path
@@ -60,9 +62,12 @@ def generate_user_id(
 
 
 def get_user_id(request):
-    user_id = request.cookies.get("user_id")
-    if not user_id:
-        user_id = generate_user_id()
+    if session.get("userid", 0):
+        user_id = str(session["userid"])
+    else:
+        user_id = request.cookies.get("user_id")
+        if not user_id:
+            user_id = generate_user_id()
     return user_id
 
 
