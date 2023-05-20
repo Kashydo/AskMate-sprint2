@@ -249,7 +249,9 @@ def login(cursor, request):
     cursor.execute(query)
     user = cursor.fetchone()
     if user:
-        if not bcrypt.checkpw(password.encode("utf-8"), bytes.fromhex(user["password"])):
+        if not bcrypt.checkpw(
+            password.encode("utf-8"), bytes.fromhex(user["password"])
+        ):
             errors_msg.append(errors["login"])
     elif username:
         errors_msg.append(errors["login"])
@@ -259,6 +261,22 @@ def login(cursor, request):
         session["username"] = user["username"]
 
     return errors_msg
+
+
+@database_common.connection_handler
+def get_user_profile_data(cursor, username):
+    errors_msg = []
+    user_profile_data = []
+    query = """
+    SELECT username, submission_time
+    FROM users
+    WHERE username = %s
+    """
+    cursor.execute(query, (username,))
+    user_profile_data = cursor.fetchone()
+    if user_profile_data is None:
+        errors_msg.append("Sorry, couldn't find this user.")
+    return errors_msg, user_profile_data
 
 
 @database_common.connection_handler

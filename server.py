@@ -5,7 +5,7 @@ from flask import (
     redirect,
     url_for,
     make_response,
-    session
+    session,
 )
 import util
 import datetime
@@ -23,6 +23,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "6ntK8uHv2W"
+
 
 @app.route("/")
 def latest_questions():
@@ -590,6 +591,20 @@ def logout():
     session.pop("userid")
     session.pop("username")
     return redirect(url_for("latest_questions"))
+
+
+@app.route("/profile/<username>", methods=["GET"])
+def user_profile(username):
+    user_id = util.get_user_id(request)
+    errors_msg = []
+    username = session["username"] if "username" in session else None
+    errors_msg, user = data_hendler.get_user_profile_data(username)
+    if len(errors_msg) == 0:
+        response = make_response(render_template("user_profile.html", user=user))
+        if not request.cookies.get("userID"):
+            response.set_cookie("user_id", user_id)
+            return response
+    return redirect(url_for("latest_questions", messages_msg=errors_msg))
 
 
 if __name__ == "__main__":

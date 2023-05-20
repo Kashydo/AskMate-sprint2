@@ -5,8 +5,7 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
     />
-    <title>Add answer</title>
-    <meta charset="UTF-8" />
+    <title>Ask Mate</title>
   </head>
   <body>
     <header>
@@ -47,44 +46,10 @@
         {% endif %}
       </nav>
     </header>
-    <h1>Your Answer</h1>
-    {% if errors_msg %}
-    <div>
-      <h3>Errors</h3>
-      <ol>
-        {% for error in errors_msg %}
-        <li>{{error}}</li>
-        {% endfor %}
-      </ol>
-    </div>
-    {% endif %} {% if question %}
-    <h1>{{ question.title }}</h1>
-    <p class="question-text">{{ question.message }}</p>
-    <br />
-    {% endif %}
-    <form method="POST" action="" enctype="multipart/form-data">
-      <fieldset>
-        <label for="message">
-          <textarea
-            id="message"
-            name="message"
-            rows="5"
-            cols="100"
-            placeholder="Write your answer here"
-            required
-          >
-{{form["message"]}}</textarea
-          >
-        </label>
-        <p>
-          <label for="image"
-            >Upload image:
-            <input id="image" type="file" name="image" value="" />
-          </label>
-        </p>
-      </fieldset>
-      <input type="submit" value="Submit" />
-    </form>
+    <main>
+      <h3>Username {{user['username']}}</h3>
+      <h4>Member since {{user['submission_time']}}</h4>
+    </main>
     <footer>
       <p>Authors:</p>
       <ul>

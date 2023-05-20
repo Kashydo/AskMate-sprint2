@@ -31,6 +31,11 @@
 
         {% if session["userid"] %}
         <span class="login">Hello {{session["username"]}}!</span>
+        <a
+        class="navigation"
+        href="{{ url_for('user_profile', username=session['username']) }}"
+        >Profile</a
+      >
         <a class="navigation" href="{{url_for('logout')}}">Logout</a>
         {% else %}
         <a class="navigation" href="{{url_for('registration')}}">Registration</a>
