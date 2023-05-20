@@ -63,6 +63,22 @@ def question_list(messages_msg=None):
         response.set_cookie("user_id", user_id)
     return response
 
+@app.route("/users_list/")
+def users_list(messages_msg=None):
+    user_id = util.get_user_id(request)
+    users = data_hendler.read_users()
+    response = make_response(
+        render_template(
+            "users_list.html",
+            request=request,
+            users=users,
+            messages_msg=messages_msg,
+            user_id=user_id,
+        )
+    )
+    if not request.cookies.get("userID"):
+        response.set_cookie("user_id", user_id)
+    return response
 
 @app.route("/question/<int:question_id>/", methods=["GET"])
 @app.route("/question/<int:question_id>/<string:messages_msg>", methods=["GET"])

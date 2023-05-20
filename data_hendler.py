@@ -67,6 +67,13 @@ def read_questions(cursor, order_by=None, order_direction=None):
     cursor.execute(query)
     return cursor.fetchall()
 
+@database_common.connection_handler
+def read_users(cursor):
+    query = """
+        SELECT username, submission_time
+        FROM users"""
+    cursor.execute(query)
+    return cursor.fetchall()
 
 @database_common.connection_handler
 def get_5_latest_questions(cursor):
