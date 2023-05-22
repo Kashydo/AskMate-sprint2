@@ -567,6 +567,7 @@ def answer_comment(question_id, answer_id):
     return response
 
 
+
 @app.route("/registration", methods=["GET", "POST"])
 def registration():
     user_id = util.get_user_id(request)
